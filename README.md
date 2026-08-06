@@ -1,6 +1,8 @@
 # vacaciones-con-clase
 Vacaciones con clase es un proyecto universitario que busca resolver el problema de la fragmentación de los datos de los clientes, centralizando el proceso de captura de datos de interés en la pagina misma del catalogo, pasando de interactividad básica con hipervínculos hacia el chat de Whatsapp Bussiness (estado actual) a una pagina que capture formularios de datos reales de clientes, los almacene en una base de datos centralizada de manera automática y permita hacer cambios de manera sencilla en el estado de la venta ofreciendo un dashboard de gestión de venta básico (estado deseado). 
 
+Para documentacion detallada del proceso de desarrollo, por favor [remítase a la wiki del proyecto](https://github.com/myripyesid/vacaciones-con-clase/wiki). 
+
 # Justificacion
 ## 1. Descripcion de situacion actual
 El flujo de captura de datos y actualizaciones de estado de venta actual esta fragmentado, es decir, dividido en 2 partes:
