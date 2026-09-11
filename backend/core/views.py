@@ -1,10 +1,11 @@
+from django.db import transaction
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics # type: ignore
 from .models import Plan
-from .serializers import PlanSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from .serializers import LeadCreateSerializer, PlanSerializer, LeadCreateSerializer  
+from rest_framework.views import APIView # type: ignore
+from rest_framework.response import Response # type: ignore
+from rest_framework import status # type: ignore
 from .models import Plan, Cliente, Lead, Asesor
 from .serializers import SolicitudCrearSerializer
 
@@ -69,5 +70,65 @@ class SolicitudCreateAPIView(APIView):
         return Response({
             "mensaje": "Solicitud registrada con éxito.",
             "lead_id": nuevo_lead.id,
-            "asesor_asignado": asesor_asignado.usuario.get_full_name() if asesor_asignado else "Sin asignar"
+            "asesor_asignado": str(asesor_asignado.usuario) if asesor_asignado and asesor_asignado.usuario else "Sin asignar"
         }, status=status.HTTP_201_CREATED)
+
+
+class LeadCreateAPIView(APIView):
+    """
+    Endpoint para procesar la captura pública de Leads (HU-06).
+    Acepta peticiones POST con la información de contacto y preferencia de plan.
+    """
+    def post(self, request):
+        # 1. Pasar los datos de la petición HTTP (request.data) al serializador
+        serializer = LeadCreateSerializer(data=request.data)
+        
+        # 2. Ejecutar validaciones. Si falla, interrumpe el flujo y retorna un HTTP 400 con los detalles.
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Extracción de datos validados
+        data = serializer.validated_data
+
+        # 4. Uso de Bloque Transaccional (ACID)
+        # Garantiza que si falla la creación del Lead, tampoco se cree el Cliente a medias en la BD.
+        with transaction.atomic():
+            # a. Buscar o Crear el Cliente (Evita duplicados si el usuario vuelve a cotizar)
+            cliente, _ = Cliente.objects.get_or_create(
+                email=data['email'],
+                defaults={
+                    'nombre_completo': data['nombre_completo'],
+                    'telefono': data['telefono']
+                }
+            )
+
+            # b. Obtener el objeto Plan ya validado previamente
+            plan = Plan.objects.get(id=data['plan_id'])
+
+            # c. Algoritmo simple de asignación de Asesor
+            # Busca al primer asesor disponible; si no hay ninguno registrado, asigna None.
+            asesor_asignado = Asesor.objects.first()
+
+            # d. Crear el registro del Lead
+            lead = Lead.objects.create(
+                cliente=cliente,
+                plan=plan,
+                asesor=asesor_asignado,
+                presupuesto=data.get('presupuesto'),
+                fechas_tentativas=data.get('fechas_tentativas', ''),
+                observaciones=data.get('observaciones', ''),
+                estado='nuevo'  # Estado inicial por defecto
+            )
+
+        # 5. Construcción de la respuesta exitosa (HTTP 201 Created)
+        respuesta = {
+            "status": "success",
+            "mensaje": "Solicitud registrada correctamente.",
+            "data": {
+                "lead_id": lead.id,
+                "cliente": cliente.nombre_completo,
+                "plan": plan.titulo,
+                "asesor_asignado": str(asesor_asignado.usuario) if asesor_asignado and asesor_asignado.usuario else "Sin asignar"
+            }
+        }
+        return Response(respuesta, status=status.HTTP_201_CREATED)

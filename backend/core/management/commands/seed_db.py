@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 import random
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
@@ -98,7 +99,7 @@ class Command(BaseCommand):
                 plan=plan,
                 asesor=asesor,
                 presupuesto=round(random.uniform(1000000, 6000000), -4),
-                fechas_tentativas=random.choice(FECHAS_TENTATIVAS),
+                fechas_tentativas = fake.date_between(start_date='today', end_date='+1y'),
                 estado=estado,
                 observaciones=fake.sentence()
             )
