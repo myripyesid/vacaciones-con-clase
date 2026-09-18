@@ -1,4 +1,4 @@
-export default function Navbar({ onGoHome, onGoToCatalog }) {
+export default function Navbar({ onGoHome, onGoToCatalog, onGoToLogin }) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-100 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
@@ -43,21 +43,29 @@ export default function Navbar({ onGoHome, onGoToCatalog }) {
             >
               Planes
             </a>
-            <a href="#catalogo" className="hover:text-[#1E3A8A] transition-colors">
+            <a 
+              href="#catalogo" 
+              onClick={(e) => { e.preventDefault(); onGoToCatalog?.(); }} 
+              className="hover:text-[#1E3A8A] transition-colors cursor-pointer"
+            >
               Destinos
             </a>
           </nav>
 
           <div className="flex items-center gap-3">
-            {/* Botón Asesores (Outlined / Borde delgado) */}
-            <a
-              href="#asesores"
-              className="border border-slate-300 hover:border-slate-800 text-slate-700 hover:text-slate-900 text-xs font-semibold px-4 py-2.5 rounded-md transition-all duration-200"
+            {/* Botón Asesores */}
+            <a 
+              href="#login" 
+              onClick={(e) => {
+                e.preventDefault();
+                onGoToLogin?.();
+              }}
+              className="border border-slate-300 hover:border-slate-800 text-slate-700 hover:text-slate-900 text-xs font-semibold px-4 py-2.5 rounded-md transition-all duration-200 cursor-pointer"
             >
               Asesores
             </a>
 
-            {/* Botón Principal "Ver planes ✈" (Dorado redondeado) */}
+            {/* Botón Principal "Ver planes ✈" */}
             <a
               href="#catalogo"
               onClick={(e) => { e.preventDefault(); onGoToCatalog?.(); }}

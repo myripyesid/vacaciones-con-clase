@@ -7,7 +7,8 @@ from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
 from .models import Plan, Cliente, Lead, Asesor
-from .serializers import SolicitudCrearSerializer
+from .serializers import SolicitudCrearSerializer, LeadSerializer
+from rest_framework.permissions import IsAuthenticated
 
 # Vista para HU-01 y HU-02 (Listar todo el catálogo)
 class PlanListAPIView(generics.ListAPIView):
@@ -21,8 +22,6 @@ class PlanListAPIView(generics.ListAPIView):
 class PlanDetailAPIView(generics.RetrieveAPIView):
     queryset = Plan.objects.filter(activo=True)
     serializer_class = PlanSerializer
-
-
 
 class SolicitudCreateAPIView(APIView):
     """
@@ -72,7 +71,6 @@ class SolicitudCreateAPIView(APIView):
             "lead_id": nuevo_lead.id,
             "asesor_asignado": str(asesor_asignado.usuario) if asesor_asignado and asesor_asignado.usuario else "Sin asignar"
         }, status=status.HTTP_201_CREATED)
-
 
 class LeadCreateAPIView(APIView):
     """
@@ -132,3 +130,11 @@ class LeadCreateAPIView(APIView):
             }
         }
         return Response(respuesta, status=status.HTTP_201_CREATED)
+
+class AsesorLeadsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        leads = Lead.objects.filter(asesor__usuario = request.user)
+        serializer = LeadSerializer(leads, many=True)
+        return Response(serializer.data)

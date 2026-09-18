@@ -7,7 +7,6 @@ class PlanSerializer(serializers.ModelSerializer):
         model = Plan
         fields = ['id', 'titulo', 'descripcion', 'destino', 'precio_referencia', 'incluye']
 
-
 class SolicitudCrearSerializer(serializers.Serializer):
     """
     Serializador de entrada: Define los campos exactos que el formulario 
@@ -45,3 +44,30 @@ class LeadCreateSerializer(serializers.Serializer):
         if not Plan.objects.filter(id=value, activo=True).exists():
             raise serializers.ValidationError("El plan seleccionado no existe en el catalogo")
         return value
+
+class ClienteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cliente
+        fields = ['nombre_completo', 'email', 'telefono', 'fecha_registro']
+
+class LeadSerializer(serializers.ModelSerializer):
+    cliente_nombre = serializers.ReadOnlyField(source='cliente.nombre_completo')
+    cliente_email = serializers.ReadOnlyField(source='cliente.email')
+    cliente_telefono = serializers.ReadOnlyField(source='cliente.telefono')
+
+    plan_nombre = serializers.ReadOnlyField(source='plan.titulo') 
+
+    class Meta:
+        model = Lead
+        fields = [
+            'id',
+            'cliente_nombre',
+            'cliente_email',
+            'cliente_telefono',
+            'plan_nombre',
+            'presupuesto',
+            'fechas_tentativas',
+            'estado',
+            'observaciones',
+            'fecha_creacion',
+        ]
