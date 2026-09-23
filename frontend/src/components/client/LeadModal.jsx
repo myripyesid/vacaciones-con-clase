@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { submitSolicitud } from '../api/planes';
+import { submitSolicitud } from '../../api/planes';
 
 export default function LeadModal({ plan, onClose }) {
   const [formData, setFormData] = useState({

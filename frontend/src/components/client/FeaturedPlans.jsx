@@ -1,6 +1,9 @@
 import PlanCard from './PlanCard';
 
-export default function FeaturedPlans({ plans, loading, onSelectPlan, onGoToCatalog }) {
+export default function FeaturedPlans({ plans, loading, error, onSelectPlan, onGoToCatalog }) {
+  // Garantizar que plans sea un arreglo antes de operar sobre él
+  const safePlans = Array.isArray(plans) ? plans : [];
+
   return (
     <section id="planes" className="py-20 px-6 bg-[#FAF8F5]">
       <div className="max-w-6xl mx-auto">
@@ -27,9 +30,13 @@ export default function FeaturedPlans({ plans, loading, onSelectPlan, onGoToCata
         {/* Renderizado Dinámico de Planes */}
         {loading ? (
           <div className="text-center py-12 text-slate-400 text-sm">Cargando destinos...</div>
+        ) : error ? (
+          <div className="text-center py-12 text-rose-500 text-sm font-medium">
+            {error}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {plans.slice(0, 3).map((plan) => (
+            {safePlans.slice(0, 3).map((plan) => (
               <PlanCard
                 key={plan.id}
                 plan={plan}

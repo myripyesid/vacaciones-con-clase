@@ -27,6 +27,11 @@ export default function Login({ onLoginSuccess, onGoHome }) {
       }
 
       localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify({
+        name: data.user_name || username,
+        role: data.role || 'Asesor Senior'
+      }));
+
       onLoginSuccess(data.token);
     } catch (err) {
       setError(err.message);
