@@ -8,10 +8,11 @@ from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
 from .models import Plan, Cliente, Lead, Asesor
 from .serializers import SolicitudCrearSerializer, LeadSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Vista para HU-01 y HU-02 (Listar todo el catálogo)
 class PlanListAPIView(generics.ListAPIView):
+    permission_classes = [AllowAny]
     # 1. ¿Qué datos vamos a buscar en la base de datos?
     queryset = Plan.objects.filter(activo=True) 
     
@@ -20,10 +21,12 @@ class PlanListAPIView(generics.ListAPIView):
 
 # Vista para HU-03 y HU-04 (Detalle de un plan específico)
 class PlanDetailAPIView(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
     queryset = Plan.objects.filter(activo=True)
     serializer_class = PlanSerializer
 
 class SolicitudCreateAPIView(APIView):
+    permission_classes = [AllowAny]
     """
     Endpoint para HU-06: Recibe la solicitud del cliente, registra o actualiza 
     sus datos, asigna un asesor automáticamente y crea el Lead.
@@ -73,6 +76,7 @@ class SolicitudCreateAPIView(APIView):
         }, status=status.HTTP_201_CREATED)
 
 class LeadCreateAPIView(APIView):
+    permission_classes = [AllowAny]
     """
     Endpoint para procesar la captura pública de Leads (HU-06).
     Acepta peticiones POST con la información de contacto y preferencia de plan.
