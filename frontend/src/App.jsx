@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Login from './components/common/Login';
+import LeadsBoard from './pages/LeadsBoard';  
 
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [showLogin, setShowLogin] = useState(false);
+  const [currentView, setCurrentView] = useState('dashboard');
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -23,9 +25,25 @@ export default function App() {
     setToken(null);
   };
 
-  // 1. Si hay token en la sesión, renderiza el CRM completo
+  // 1. Si hay token en la sesión, renderiza la vista activa del CRM
   if (token) {
-    return <Dashboard onLogout={handleLogout} />;
+    if (currentView === 'leads') {
+      return (
+        <LeadsBoard 
+          onLogout={handleLogout} 
+          currentView={currentView} 
+          onNavigate={setCurrentView} 
+        />
+      );
+    }
+
+    return (
+      <Dashboard 
+        onLogout={handleLogout} 
+        currentView={currentView} 
+        onNavigate={setCurrentView} 
+      />
+    );
   }
 
   // 2. Si el usuario hizo clic en "Iniciar Sesión" desde el Navbar, renderiza el Login

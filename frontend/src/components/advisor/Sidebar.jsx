@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Sidebar({ user, onLogout }) {
+export default function Sidebar({ user, onLogout, currentView = 'dashboard', onNavigate }) {
   // 1. Obtiene el usuario de las props o del localStorage guardado durante el Login
   const storedUser = JSON.parse(localStorage.getItem('user')) || {};
   const currentUser = user || storedUser;
@@ -19,7 +19,7 @@ export default function Sidebar({ user, onLogout }) {
       .toUpperCase();
   };
 
-const handleLogoutClick = () => {
+  const handleLogoutClick = () => {
     // 1. Limpiamos las credenciales almacenadas
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -30,6 +30,13 @@ const handleLogoutClick = () => {
     } else {
       // Fallback en caso de que no se haya pasado la función
       window.location.reload();
+    }
+  };
+
+  const handleNavClick = (e, view) => {
+    e.preventDefault();
+    if (typeof onNavigate === 'function') {
+      onNavigate(view);
     }
   };
 
@@ -50,17 +57,25 @@ const handleLogoutClick = () => {
 
         {/* Menú de Navegación */}
         <nav className="space-y-1">
-          <a
-            href="#dashboard"
-            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl bg-slate-800 text-amber-400 border border-slate-700/60 shadow-sm"
+          <button
+            onClick={(e) => handleNavClick(e, 'dashboard')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors cursor-pointer ${
+              currentView === 'dashboard'
+                ? 'bg-slate-800 text-amber-400 border border-slate-700/60 shadow-sm'
+                : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+            }`}
           >
             <span>📊</span>
             Dashboard
-          </a>
+          </button>
 
-          <a
-            href="#leads"
-            className="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-colors"
+          <button
+            onClick={(e) => handleNavClick(e, 'leads')}
+            className={`w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-xl transition-colors cursor-pointer ${
+              currentView === 'leads'
+                ? 'bg-slate-800 text-amber-400 border border-slate-700/60 shadow-sm'
+                : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+            }`}
           >
             <div className="flex items-center gap-3">
               <span>👥</span>
@@ -69,15 +84,19 @@ const handleLogoutClick = () => {
             <span className="bg-rose-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
               1
             </span>
-          </a>
+          </button>
 
-          <a
-            href="#ventas"
-            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white transition-colors"
+          <button
+            onClick={(e) => handleNavClick(e, 'ventas')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors cursor-pointer ${
+              currentView === 'ventas'
+                ? 'bg-slate-800 text-amber-400 border border-slate-700/60 shadow-sm'
+                : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+            }`}
           >
             <span>📈</span>
             Mis ventas
-          </a>
+          </button>
         </nav>
       </div>
 

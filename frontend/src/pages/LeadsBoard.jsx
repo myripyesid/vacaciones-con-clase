@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from '../components/advisor/Sidebar';
-import DashboardHeader from '../components/advisor/DashboardHeader';
-import MetricsGrid from '../components/advisor/MetricsGrid';
-import PipelineSection from '../components/advisor/PipelineSection';
-import RecentActivity from '../components/advisor/RecentActivity';
+import Sidebar from "../components/advisor/Sidebar";
+import LeadsHeader from "../components/advisor/LeadsHeader";
 
-export default function Dashboard({ onLogout, currentView, onNavigate }) {
+export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +31,8 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
         }
 
         const data = await response.json();
-        setLeads(data);
+        const leadsList = Array.isArray(data) ? data : (data.results || []);
+        setLeads(leadsList);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -47,16 +45,16 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
 
   return (
     <div className="flex min-h-screen bg-[#faf8f5]">
-      {/* Sidebar Fijo con navegación activa */}
+      {/* Sidebar Fijo (se mantiene la navegación actual) */}
       <Sidebar 
-        onLogout={onLogout} 
-        currentView={currentView} 
-        onNavigate={onNavigate} 
+      onLogout={onLogout}
+      currentView={currentView}
+      onNavigate={onNavigate}
       />
 
-      {/* Área de Contenido Principal */}
+      {/* Área de Contenido Principal de Leads */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <DashboardHeader />
+        <LeadsHeader leads={leads} />
 
         {/* Manejo de Carga y Errores */}
         {loading && (
@@ -75,16 +73,11 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
         )}
 
         {!loading && !error && (
-          <>
-            {/* Grilla de Métricas */}
-            <MetricsGrid leads={leads} />
-
-            {/* Sección Inferior */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <PipelineSection leads={leads} />
-              <RecentActivity leads={leads} />
-            </div>
-          </>
+          <div className="space-y-6">
+            {/* Aquí se irán incorporando los siguientes componentes: */}
+            {/* <LeadsSearchBar ... /> */}
+            {/* <LeadsTable ... /> */}
+          </div>
         )}
       </main>
     </div>
