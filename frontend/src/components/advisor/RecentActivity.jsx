@@ -4,11 +4,10 @@ export default function RecentActivity({ leads = [] }) {
   // Configuración de Badges por Estado
   const statusBadges = {
     NUEVO: { label: 'Nuevo', style: 'bg-blue-50 text-blue-600 border-blue-200' },
-    EN_CONTACTO: { label: 'Contactado', style: 'bg-amber-50 text-amber-600 border-amber-200' },
-    COTIZACION_ENVIADA: { label: 'Cotización enviada', style: 'bg-purple-50 text-purple-600 border-purple-200' },
+    CONTACTADO: { label: 'Contactado', style: 'bg-amber-50 text-amber-600 border-amber-200' },
     NEGOCIACION: { label: 'Negociación', style: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-    VENTA_REALIZADA: { label: 'Venta realizada', style: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
-    OPORTUNIDAD_PERDIDA: { label: 'Oportunidad perdida', style: 'bg-rose-50 text-rose-600 border-rose-200' },
+    GANADO: { label: 'Venta realizada', style: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
+    PERDIDO: { label: 'Oportunidad perdida', style: 'bg-rose-50 text-rose-600 border-rose-200' },
   };
 
   // Función para obtener iniciales del cliente

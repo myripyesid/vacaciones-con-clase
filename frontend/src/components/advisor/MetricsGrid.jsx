@@ -3,14 +3,14 @@ import React from 'react';
 export default function MetricsGrid({ leads = [] }) {
   // 1. Filtrado y conteo dinámico basado en los datos devueltos por el backend
   const nuevos = leads.filter((l) => l.estado === 'NUEVO').length;
-  const enContacto = leads.filter((l) => l.estado === 'EN_CONTACTO').length;
-  const cotizaciones = leads.filter((l) => l.estado === 'COTIZACION_ENVIADA').length;
-  const ventas = leads.filter((l) => l.estado === 'VENTA_REALIZADA').length;
-  const perdidas = leads.filter((l) => l.estado === 'OPORTUNIDAD_PERDIDA').length;
+  const enContacto = leads.filter((l) => l.estado === 'CONTACTADO').length;
+  const cotizaciones = leads.filter((l) => l.estado === 'NEGOCIACION').length;
+  const ventas = leads.filter((l) => l.estado === 'GANADO').length;
+  const perdidas = leads.filter((l) => l.estado === 'PERDIDO').length;
 
   // 2. Suma del presupuesto de las ventas cerradas
   const ingresosTotales = leads
-    .filter((l) => l.estado === 'VENTA_REALIZADA' && l.presupuesto)
+    .filter((l) => l.estado === 'GANADO' && l.presupuesto)
     .reduce((sum, l) => sum + Number(l.presupuesto), 0);
 
   // Formateador de moneda (ej: $2.2M o $2.200.000)
