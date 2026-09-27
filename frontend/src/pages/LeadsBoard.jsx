@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from "../components/advisor/Sidebar";
 import LeadsHeader from "../components/advisor/LeadsHeader";
+import LeadsSearchBar from "../components/advisor/LeadsSearchBar";
+import LeadsTable from "../components/advisor/LeadsTable";
 
 export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -43,6 +46,25 @@ export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
     fetchLeads();
   }, []);
 
+  // Filtrado en vivo: se recalcula en cada render a partir de `leads`
+  // y `searchQuery` (que llega ya "debounced" desde LeadsSearchBar).
+  const query = searchQuery.trim().toLowerCase();
+  const filteredLeads = query === ''
+    ? leads
+    : leads.filter((lead) => {
+        const nombre = lead.cliente_nombre?.toLowerCase() || '';
+        const email = lead.cliente_email?.toLowerCase() || '';
+        const telefono = lead.cliente_telefono?.toLowerCase() || '';
+        const plan = lead.plan_nombre?.toLowerCase() || '';
+
+        return (
+          nombre.includes(query) ||
+          email.includes(query) ||
+          telefono.includes(query) ||
+          plan.includes(query)
+        );
+      });
+
   return (
     <div className="flex min-h-screen bg-[#faf8f5]">
       {/* Sidebar Fijo (se mantiene la navegación actual) */}
@@ -74,11 +96,17 @@ export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
 
         {!loading && !error && (
           <div className="space-y-6">
-            {/* Aquí se irán incorporando los siguientes componentes: */}
-            {/* <LeadsSearchBar ... /> */}
-            {/* <LeadsTable ... /> */}
+            <div className="flex gap-3">
+              <LeadsSearchBar onSearch={setSearchQuery} />
+            </div>
+
+            <LeadsTable leads={filteredLeads} />
+
+            {/* <LeadsTable leads={filteredLeads} /> */}
           </div>
         )}
+
+
       </main>
     </div>
   );
