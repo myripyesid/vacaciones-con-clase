@@ -47,10 +47,10 @@ export default function LeadModal({ plan, onClose }) {
       <div className="bg-white rounded-2xl max-w-lg w-full p-6 text-slate-800 shadow-2xl relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">✕</button>
         <h3 className="text-xl font-bold font-serif text-slate-900 mb-1">Solicitar Cotización</h3>
-        <p className="text-xs text-[#CA8A04] font-semibold mb-6">Plan: {title}</p>
+        <p className="text-xs text-[#0D237D] font-semibold mb-6">Plan: {title}</p>
 
         {feedback.message && (
-          <div className={`p-3 rounded-lg text-xs font-medium mb-4 ${feedback.type === 'success' ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`}>
+          <div className={`p-3 rounded-lg text-xs font-medium mb-4 ${feedback.type === 'success' ? 'bg-blue-50 text-brand-blue' : 'bg-rose-50 text-rose-800'}`}>
             {feedback.message}
           </div>
         )}
@@ -106,7 +106,7 @@ export default function LeadModal({ plan, onClose }) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-4 bg-[#CA8A04] hover:bg-[#B45309] text-slate-950 font-semibold py-3 rounded-lg text-sm transition"
+            className="w-full mt-4 bg-brand-blue hover:bg-brand-blue-dark text-white font-semibold py-3 rounded-lg text-sm transition"
           >
             {submitting ? 'Enviando...' : 'Enviar Cotización 🚀'}
           </button>

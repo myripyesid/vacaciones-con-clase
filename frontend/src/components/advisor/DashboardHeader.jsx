@@ -11,7 +11,7 @@ export default function DashboardHeader() {
   return (
     <header className="mb-6">
       <h1 className="text-3xl font-serif font-bold text-slate-900 tracking-tight">
-        Dashboard
+        📊 Dashboard
       </h1>
       <p className="text-sm text-slate-500 capitalize mt-1">
         Resumen de tu actividad — {formattedDate}

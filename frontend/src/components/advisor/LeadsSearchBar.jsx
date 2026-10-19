@@ -31,7 +31,7 @@ export default function LeadsSearchBar({ onSearch }) {
         value={inputText}
         onChange={handleChange}
         placeholder="Buscar por nombre, correo, teléfono o plan..."
-        className="w-full pl-11 pr-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400 transition-colors"
+        className="w-full pl-11 pr-4 py-2.5 text-sm bg-white border border-brand-border rounded-xl text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-colors"
       />
     </div>
   );

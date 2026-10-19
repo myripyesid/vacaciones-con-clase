@@ -1,19 +1,19 @@
 import React from 'react';
 
 const AVATAR_COLORS = [
-  { bg: 'bg-emerald-100', text: 'text-emerald-700' },
-  { bg: 'bg-violet-100', text: 'text-violet-700' },
-  { bg: 'bg-amber-100', text: 'text-amber-700' },
-  { bg: 'bg-sky-100', text: 'text-sky-700' },
-  { bg: 'bg-rose-100', text: 'text-rose-700' },
+  { bg: 'bg-brand-blue-soft', text: 'text-brand-blue' },
+  { bg: 'bg-slate-100', text: 'text-slate-700' },
+  { bg: 'bg-blue-100', text: 'text-blue-800' },
+  { bg: 'bg-slate-200', text: 'text-slate-700' },
+  { bg: 'bg-blue-50', text: 'text-brand-blue' },
 ];
 
 export const ESTADO_CONFIG = {
-  NUEVO: { label: 'Nuevo', bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200' },
-  CONTACTADO: { label: 'Contactado', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' },
-  NEGOCIACION: { label: 'En negociación', bg: 'bg-teal-50', text: 'text-teal-700', border: 'border-teal-200' },
-  GANADO: { label: 'Venta realizada', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
-  PERDIDO: { label: 'Oportunidad perdida', bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
+  NUEVO: { label: 'Nuevo', bg: 'bg-brand-blue-soft', text: 'text-brand-blue', border: 'border-brand-blue/20' },
+  CONTACTADO: { label: 'Contactado', bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200' },
+  NEGOCIACION: { label: 'En negociación', bg: 'bg-purple-50', text: 'text-purple-800', border: 'border-purple-200' },
+  GANADO: { label: 'Venta realizada', bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200' },
+  PERDIDO: { label: 'Oportunidad perdida', bg: 'bg-rose-50', text: 'text-rose-800', border: 'border-rose-200' },
 };
 
 const getInitials = (name) => {
@@ -38,7 +38,7 @@ const formatFecha = (isoDate) => {
   return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 };
 
-export const LEAD_ROW_GRID = 'grid grid-cols-[2.5fr_2fr_1fr_1.3fr] items-center';
+export const LEAD_ROW_GRID = 'grid grid-cols-2 items-center gap-x-3 gap-y-3 md:grid-cols-[2.5fr_2fr_1fr_1.3fr] md:gap-x-0';
 
 export default function LeadVisualization({ lead }) {
   const avatarColor = getAvatarColor(lead.cliente_nombre);

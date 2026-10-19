@@ -61,7 +61,7 @@ export default function Form({ plan, onBack, onSuccess }) {
     : '$1.850.000';
 
   return (
-    <div className="min-h-screen pt-28 pb-16 px-4 bg-[#FAF8F5] flex flex-col items-center">
+    <div className="min-h-screen bg-brand-gray-light px-4 pb-16 pt-28 flex flex-col items-center">
       <div className="w-full max-w-xl space-y-6">
         
         {/* Tarjeta Resumen del Plan */}
@@ -87,20 +87,20 @@ export default function Form({ plan, onBack, onSuccess }) {
 
           <div className="text-right whitespace-nowrap">
             <span className="text-[10px] text-slate-400 block uppercase tracking-wider">Desde</span>
-            <span className="text-lg font-bold text-[#D4A338]">
+            <span className="text-lg font-bold text-[#0D237D]">
               {formattedPrice}
             </span>
           </div>
         </div>
 
         {/* Tarjeta Principal del Formulario */}
-        <div className="bg-white rounded-2xl p-8 md:p-10 shadow-sm border border-slate-100">
+        <div className="bg-white rounded-2xl p-5 sm:p-8 md:p-10 shadow-sm border border-brand-border">
           
           {/* Encabezado */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="w-6 h-[1px] bg-[#D4A338]"></span>
-              <span className="text-[10px] tracking-[0.2em] text-[#D4A338] font-bold uppercase">
+              <span className="w-6 h-[1px] bg-[#0D237D]"></span>
+              <span className="text-[10px] tracking-[0.2em] text-[#0D237D] font-bold uppercase">
                 TU SOLICITUD
               </span>
             </div>
@@ -124,7 +124,7 @@ export default function Form({ plan, onBack, onSuccess }) {
             {/* Nombre completo */}
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                Nombre completo <span className="text-[#D4A338]">*</span>
+                Nombre completo <span className="text-[#0D237D]">*</span>
               </label>
               <input
                 type="text"
@@ -133,7 +133,7 @@ export default function Form({ plan, onBack, onSuccess }) {
                 placeholder="Ej. María Fernanda Ospina"
                 value={formData.nombre_completo}
                 onChange={handleChange}
-                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-[#D4A338] focus:bg-white transition-all"
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all"
               />
             </div>
 
@@ -141,7 +141,7 @@ export default function Form({ plan, onBack, onSuccess }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Correo electrónico <span className="text-[#D4A338]">*</span>
+                  Correo electrónico <span className="text-[#0D237D]">*</span>
                 </label>
                 <input
                   type="email"
@@ -150,13 +150,13 @@ export default function Form({ plan, onBack, onSuccess }) {
                   placeholder="correo@ejemplo.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-[#D4A338] focus:bg-white transition-all"
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Teléfono / WhatsApp <span className="text-[#D4A338]">*</span>
+                  Teléfono / WhatsApp <span className="text-[#0D237D]">*</span>
                 </label>
                 <input
                   type="tel"
@@ -165,7 +165,7 @@ export default function Form({ plan, onBack, onSuccess }) {
                   placeholder="3001234567"
                   value={formData.telefono}
                   onChange={handleChange}
-                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-[#D4A338] focus:bg-white transition-all"
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all"
                 />
               </div>
             </div>
@@ -174,14 +174,14 @@ export default function Form({ plan, onBack, onSuccess }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Número de viajeros <span className="text-[#D4A338]">*</span>
+                  Número de viajeros <span className="text-[#0D237D]">*</span>
                 </label>
                 <select
                   name="numero_viajeros"
                   required
                   value={formData.numero_viajeros}
                   onChange={handleChange}
-                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-[#D4A338] focus:bg-white transition-all cursor-pointer"
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all cursor-pointer"
                 >
                   <option value="">Seleccionar...</option>
                   <option value="1">1 viajero</option>
@@ -193,7 +193,7 @@ export default function Form({ plan, onBack, onSuccess }) {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Fecha aproximada <span className="text-[#D4A338]">*</span>
+                  Fecha aproximada <span className="text-[#0D237D]">*</span>
                 </label>
                 <input
                   type="date"
@@ -201,7 +201,7 @@ export default function Form({ plan, onBack, onSuccess }) {
                   required
                   value={formData.fechas_tentativas}
                   onChange={handleChange}
-                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-[#D4A338] focus:bg-white transition-all cursor-pointer"
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all cursor-pointer"
                 />
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function Form({ plan, onBack, onSuccess }) {
                 placeholder="Cuéntanos sobre tu viaje ideal, necesidades especiales, presupuesto disponible, o cualquier detalle importante..."
                 value={formData.observaciones}
                 onChange={handleChange}
-                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-[#D4A338] focus:bg-white transition-all resize-none"
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all resize-none"
               ></textarea>
             </div>
 
@@ -225,7 +225,7 @@ export default function Form({ plan, onBack, onSuccess }) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-[#D4A338] hover:bg-[#c3932a] active:scale-[0.99] text-slate-950 font-bold text-xs py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+              className="w-full bg-brand-blue hover:bg-brand-blue-dark active:scale-[0.99] text-white font-bold text-xs py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
             >
               {submitting ? 'Enviando...' : '✈ Enviar solicitud'}
             </button>

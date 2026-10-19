@@ -67,7 +67,7 @@ export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
       });
 
   return (
-    <div className="flex min-h-screen bg-[#faf8f5]">
+    <div className="flex min-h-screen bg-[#F3F5F8]">
       {/* Sidebar Fijo (se mantiene la navegación actual) */}
       <Sidebar 
       onLogout={onLogout}
