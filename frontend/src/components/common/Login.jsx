@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import BrandLogo from './BrandLogo';
 
 export default function Login({ onLoginSuccess, onGoHome }) {
   const [username, setUsername] = useState('');
@@ -41,7 +42,7 @@ export default function Login({ onLoginSuccess, onGoHome }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#FAF8F5]">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F3F5F8]">
       {/* Columna Izquierda - Imagen de fondo con overlay y texto informativo */}
       <div 
         className="relative md:w-1/2 min-h-[300px] md:min-h-screen bg-cover bg-center flex flex-col justify-between p-8 md:p-12 text-white"
@@ -50,21 +51,16 @@ export default function Login({ onLoginSuccess, onGoHome }) {
         }}
       >
         {/* Branding superior izquierdo */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#D4A338] flex items-center justify-center font-bold text-slate-900 text-sm shadow-sm">
-            ✦
-          </div>
-          <div>
-            <p className="font-serif italic font-bold text-base leading-none text-white">Vacaciones con Clase</p>
-            <p className="text-[10px] tracking-widest text-amber-200/80 uppercase font-semibold">PORTAL ASESORES</p>
-          </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <BrandLogo className="w-40 rounded-lg bg-white p-2" />
+          <p className="text-[10px] tracking-widest text-white uppercase font-semibold">PORTAL ASESORES</p>
         </div>
 
         {/* Sección de información inferior */}
         <div className="mt-12 md:mt-0 max-w-lg">
           <div className="flex items-center gap-2 mb-3">
-            <span className="w-5 h-[1px] bg-[#D4A338]"></span>
-            <span className="text-[11px] font-semibold text-[#D4A338] tracking-widest uppercase">CRM INTERNO</span>
+            <span className="w-5 h-[1px] bg-blue-200"></span>
+            <span className="text-[11px] font-semibold text-blue-100 tracking-widest uppercase">CRM INTERNO</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-serif font-bold leading-tight mb-4 text-white">
             Gestiona tus leads<br />con eficiencia
@@ -92,7 +88,7 @@ export default function Login({ onLoginSuccess, onGoHome }) {
       </div>
 
       {/* Columna Derecha - Formulario de inicio de sesión */}
-      <div className="md:w-1/2 flex flex-col justify-center px-8 md:px-20 py-12 relative">
+      <div className="md:w-1/2 flex flex-col justify-center px-5 sm:px-8 md:px-20 py-12 relative">
         {/* Botón Volver al sitio */}
         <button
           onClick={onGoHome}
@@ -104,8 +100,8 @@ export default function Login({ onLoginSuccess, onGoHome }) {
         <div className="max-w-md w-full mx-auto">
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-4 h-[1px] bg-[#D4A338]"></span>
-              <span className="text-[10px] font-bold text-[#D4A338] tracking-widest uppercase">ACCESO SEGURO</span>
+              <span className="w-4 h-[1px] bg-blue-200"></span>
+              <span className="text-[10px] font-bold text-blue-100 tracking-widest uppercase">ACCESO SEGURO</span>
             </div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900">Bienvenido, asesor</h2>
             <p className="text-xs text-slate-500 mt-1">Ingresa tus credenciales para acceder al CRM.</p>
@@ -127,7 +123,7 @@ export default function Login({ onLoginSuccess, onGoHome }) {
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-[#D4A338] transition-colors shadow-sm"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 transition-colors shadow-sm"
                 placeholder="asesor@vacacionesconclase.com"
               />
             </div>
@@ -141,13 +137,13 @@ export default function Login({ onLoginSuccess, onGoHome }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-[#D4A338] transition-colors shadow-sm"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 transition-colors shadow-sm"
                 placeholder="••••••••"
               />
             </div>
 
             {/* Aviso informativo opcional */}
-            <div className="p-3 bg-amber-50/60 border border-amber-200/60 rounded-xl text-[11px] text-amber-800 flex items-center gap-2">
+            <div className="p-3 bg-brand-blue-soft border border-brand-blue/15 rounded-xl text-[11px] text-brand-gray-dark flex items-center gap-2">
               <span>💡</span>
               <span>Ingresa con tus credenciales asignadas de asesor.</span>
             </div>
@@ -155,7 +151,7 @@ export default function Login({ onLoginSuccess, onGoHome }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-[#0F172A] hover:bg-[#1E293B] text-white font-semibold text-xs rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-brand-blue hover:bg-brand-blue-hover text-white font-semibold text-xs rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading ? 'Verificando...' : 'Ingresar al CRM →'}
             </button>

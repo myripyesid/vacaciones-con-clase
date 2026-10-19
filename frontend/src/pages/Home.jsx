@@ -40,7 +40,7 @@ export default function Home({ onOpenLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] flex flex-col justify-between">
+    <div className="min-h-screen bg-[#F3F5F8] flex flex-col justify-between">
       <Navbar 
         onGoHome={handleGoHome} 
         onGoToCatalog={handleGoToCatalog} 

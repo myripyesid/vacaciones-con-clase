@@ -3,11 +3,11 @@ import React from 'react';
 export default function RecentActivity({ leads = [] }) {
   // Configuración de Badges por Estado
   const statusBadges = {
-    NUEVO: { label: 'Nuevo', style: 'bg-blue-50 text-blue-600 border-blue-200' },
-    CONTACTADO: { label: 'Contactado', style: 'bg-amber-50 text-amber-600 border-amber-200' },
-    NEGOCIACION: { label: 'Negociación', style: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-    GANADO: { label: 'Venta realizada', style: 'bg-emerald-100 text-emerald-700 border-emerald-300' },
-    PERDIDO: { label: 'Oportunidad perdida', style: 'bg-rose-50 text-rose-600 border-rose-200' },
+    NUEVO: { label: 'Nuevo', icon: '🔔', style: 'bg-blue-50 text-blue-700 border-blue-200' },
+    CONTACTADO: { label: 'Contactado', icon: '📞', style: 'bg-amber-50 text-amber-700 border-amber-200' },
+    NEGOCIACION: { label: 'Negociación', icon: '📄', style: 'bg-purple-50 text-purple-700 border-purple-200' },
+    GANADO: { label: 'Venta realizada', icon: '✅', style: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+    PERDIDO: { label: 'Oportunidad perdida', icon: '❌', style: 'bg-rose-50 text-rose-700 border-rose-200' },
   };
 
   // Función para obtener iniciales del cliente
@@ -29,7 +29,7 @@ export default function RecentActivity({ leads = [] }) {
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-base font-bold text-slate-900">Actividad reciente</h2>
+        <h2 className="text-base font-bold text-slate-900">🕒 Actividad reciente</h2>
         <a href="#leads" className="text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors">
           Ver todos →
         </a>
@@ -40,7 +40,7 @@ export default function RecentActivity({ leads = [] }) {
           <p className="text-xs text-slate-400 text-center py-4">No hay actividad reciente.</p>
         ) : (
           recentLeads.map((lead) => {
-            const badge = statusBadges[lead.estado] || statusBadges.NUEVO;
+            const badge = statusBadges[lead.estado?.toUpperCase()] || statusBadges.NUEVO;
 
             return (
               <div key={lead.id} className="flex items-center justify-between gap-3 p-2 rounded-xl hover:bg-slate-50/80 transition-colors">
@@ -59,7 +59,7 @@ export default function RecentActivity({ leads = [] }) {
                 </div>
 
                 <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${badge.style} shrink-0`}>
-                  {badge.label}
+                  {badge.icon} {badge.label}
                 </span>
               </div>
             );

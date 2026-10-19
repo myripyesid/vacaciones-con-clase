@@ -19,7 +19,7 @@ export default function PlanCard({ plan, onSelect, badge, location, destination,
 
           {/* Badge superior izquierdo */}
           {badge && (
-            <span className="absolute top-4 left-4 bg-[#D4A338] text-slate-950 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
+            <span className="absolute top-4 left-4 bg-brand-blue text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
               {badge}
             </span>
           )}
@@ -62,7 +62,7 @@ export default function PlanCard({ plan, onSelect, badge, location, destination,
 
         <button
           onClick={() => onSelect(plan)}
-          className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5"
+          className="bg-[#0D237D] hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5"
         >
           Ver plan →
         </button>

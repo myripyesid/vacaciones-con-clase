@@ -36,7 +36,7 @@ export default function PlanDetail({ plan, onBack }) {
   }
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen pt-28 pb-20 px-6">
+    <div className="bg-[#F3F5F8] min-h-screen pt-28 pb-20 px-6">
       <div className="max-w-6xl mx-auto">
         
         {/* Botón Volver */}
@@ -60,7 +60,7 @@ export default function PlanDetail({ plan, onBack }) {
                 alt={title}
                 className="w-full h-full object-cover transition-all duration-300"
               />
-              <span className="absolute top-4 left-4 bg-[#D4A338] text-slate-950 text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
+              <span className="absolute top-4 left-4 bg-brand-blue text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">
                 {plan?.badge || 'Más vendido'}
               </span>
             </div>
@@ -72,7 +72,7 @@ export default function PlanDetail({ plan, onBack }) {
                   key={idx}
                   onClick={() => setSelectedImage(img)}
                   className={`relative w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${
-                    selectedImage === img ? 'border-[#D4A338] scale-105' : 'border-transparent opacity-70 hover:opacity-100'
+                    selectedImage === img ? 'border-[#0D237D] scale-105' : 'border-transparent opacity-70 hover:opacity-100'
                   }`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" />
@@ -82,7 +82,7 @@ export default function PlanDetail({ plan, onBack }) {
 
             {/* Título y Descripción */}
             <div>
-              <span className="text-[10px] tracking-[0.2em] uppercase text-[#D4A338] font-semibold block mb-1">
+              <span className="text-[10px] tracking-[0.2em] uppercase text-[#0D237D] font-semibold block mb-1">
                 {location}
               </span>
               <h1 className="text-3xl md:text-4xl font-serif text-slate-900 mb-4 font-normal">
@@ -106,9 +106,9 @@ export default function PlanDetail({ plan, onBack }) {
                 ].map((item, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#F3EFEA] rounded-lg p-3.5 flex items-center gap-3 text-xs text-slate-800 font-medium"
+                    className="bg-[#F3F5F8] rounded-lg p-3.5 flex items-center gap-3 text-xs text-slate-800 font-medium"
                   >
-                    <span className="w-2 h-2 rounded-full bg-[#D4A338] shrink-0" />
+                    <span className="w-2 h-2 rounded-full bg-[#0D237D] shrink-0" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -120,7 +120,7 @@ export default function PlanDetail({ plan, onBack }) {
               
               {/* Incluye */}
               <div>
-                <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <h4 className="text-xs font-bold text-brand-blue uppercase tracking-wider mb-3 flex items-center gap-1.5">
                   ✓ EL PLAN INCLUYE
                 </h4>
                 <ul className="space-y-2 text-xs text-slate-600 font-light">
@@ -156,7 +156,7 @@ export default function PlanDetail({ plan, onBack }) {
             <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xl space-y-6">
               
               <div>
-                <span className="bg-[#D4A338] text-slate-950 text-[10px] font-bold px-3 py-1 rounded-full inline-block mb-3">
+                <span className="bg-brand-blue text-white text-[10px] font-bold px-3 py-1 rounded-full inline-block mb-3">
                   {plan?.badge || 'Más vendido'}
                 </span>
                 <h2 className="text-xl font-serif text-slate-900 font-normal">
@@ -181,7 +181,7 @@ export default function PlanDetail({ plan, onBack }) {
                 </div>
                 <div className="flex justify-between items-center text-slate-600">
                   <span>Seguro de viaje</span>
-                  <span className="text-emerald-600 font-medium">✓ Incluido</span>
+                  <span className="text-brand-blue font-medium">✓ Incluido</span>
                 </div>
               </div>
 
@@ -199,7 +199,7 @@ export default function PlanDetail({ plan, onBack }) {
               {/* Botón de Acción Principal */}
               <button 
                 onClick={() => setShowForm(true)}
-                className="w-full bg-[#D4A338] hover:bg-[#c3932a] text-slate-950 text-xs font-bold py-3.5 rounded-full transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full bg-brand-blue hover:bg-brand-blue-dark text-white text-xs font-bold py-3.5 rounded-full transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>✈</span> Me interesa este plan
               </button>
@@ -211,15 +211,15 @@ export default function PlanDetail({ plan, onBack }) {
               {/* Badges de Garantía Inferiores */}
               <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 text-center">
                 <div className="space-y-1">
-                  <span className="text-emerald-600 text-xs block">🛡</span>
+                  <span className="text-brand-blue text-xs block">🛡</span>
                   <span className="text-[9px] text-slate-500 block leading-none">Seguro</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-emerald-600 text-xs block">✈</span>
+                  <span className="text-brand-blue text-xs block">✈</span>
                   <span className="text-[9px] text-slate-500 block leading-none">Vuelos directos</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-emerald-600 text-xs block">🏨</span>
+                  <span className="text-brand-blue text-xs block">🏨</span>
                   <span className="text-[9px] text-slate-500 block leading-none">Hoteles 4-5★</span>
                 </div>
               </div>

@@ -1,93 +1,50 @@
 import React from 'react';
 
 export default function MetricsGrid({ leads = [] }) {
-  // 1. Filtrado y conteo dinámico basado en los datos devueltos por el backend
-  const nuevos = leads.filter((l) => l.estado === 'NUEVO').length;
-  const enContacto = leads.filter((l) => l.estado === 'CONTACTADO').length;
-  const cotizaciones = leads.filter((l) => l.estado === 'NEGOCIACION').length;
-  const ventas = leads.filter((l) => l.estado === 'GANADO').length;
-  const perdidas = leads.filter((l) => l.estado === 'PERDIDO').length;
+  const nuevos = leads.filter((lead) => lead.estado === 'NUEVO').length;
+  const enContacto = leads.filter((lead) => lead.estado === 'CONTACTADO').length;
+  const cotizaciones = leads.filter((lead) => lead.estado === 'NEGOCIACION').length;
+  const ventas = leads.filter((lead) => lead.estado === 'GANADO').length;
+  const perdidas = leads.filter((lead) => lead.estado === 'PERDIDO').length;
 
-  // 2. Suma del presupuesto de las ventas cerradas
   const ingresosTotales = leads
-    .filter((l) => l.estado === 'GANADO' && l.presupuesto)
-    .reduce((sum, l) => sum + Number(l.presupuesto), 0);
+    .filter((lead) => lead.estado === 'GANADO' && lead.presupuesto)
+    .reduce((sum, lead) => sum + Number(lead.presupuesto), 0);
 
-  // Formateador de moneda (ej: $2.2M o $2.200.000)
-  const formatCurrency = (val) => {
-    if (val >= 1000000) {
-      return `$${(val / 1000000).toFixed(1)}M`;
-    }
-    return `$${val.toLocaleString('es-CO')}`;
+  const formatCurrency = (value) => {
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+    return `$${value.toLocaleString('es-CO')}`;
   };
 
-  // Configuración de visualización para las 6 tarjetas
   const cards = [
-    {
-      title: 'Nuevos leads',
-      value: nuevos,
-      icon: '🔔',
-      bgColor: 'bg-blue-50/60',
-      borderColor: 'border-blue-100',
-      valueColor: 'text-blue-600',
-    },
-    {
-      title: 'En contacto',
-      value: enContacto,
-      icon: '📞',
-      bgColor: 'bg-amber-50/60',
-      borderColor: 'border-amber-100',
-      valueColor: 'text-amber-600',
-    },
-    {
-      title: 'Cotizaciones',
-      value: cotizaciones,
-      icon: '📄',
-      bgColor: 'bg-purple-50/60',
-      borderColor: 'border-purple-100',
-      valueColor: 'text-purple-600',
-    },
-    {
-      title: 'Ventas',
-      value: ventas,
-      icon: '✅',
-      bgColor: 'bg-emerald-50/60',
-      borderColor: 'border-emerald-100',
-      valueColor: 'text-emerald-600',
-    },
-    {
-      title: 'Oport. perdidas',
-      value: perdidas,
-      icon: '❌',
-      bgColor: 'bg-rose-50/60',
-      borderColor: 'border-rose-100',
-      valueColor: 'text-rose-600',
-    },
-    {
-      title: 'Ingresos totales',
-      value: formatCurrency(ingresosTotales),
-      icon: '💰',
-      bgColor: 'bg-orange-50/40',
-      borderColor: 'border-orange-100',
-      valueColor: 'text-orange-950',
-    },
+    { title: 'Nuevos leads', value: nuevos, icon: '🔔', tone: 'blue' },
+    { title: 'En contacto', value: enContacto, icon: '📞', tone: 'amber' },
+    { title: 'Cotizaciones', value: cotizaciones, icon: '📄', tone: 'purple' },
+    { title: 'Ventas', value: ventas, icon: '✅', tone: 'green' },
+    { title: 'Oport. perdidas', value: perdidas, icon: '❌', tone: 'red' },
+    { title: 'Ingresos totales', value: formatCurrency(ingresosTotales), icon: '💰', tone: 'gray' },
   ];
 
+  const tones = {
+    blue: 'border-blue-100 bg-blue-50/60 text-blue-700',
+    amber: 'border-amber-100 bg-amber-50/70 text-amber-700',
+    purple: 'border-purple-100 bg-purple-50/70 text-purple-700',
+    green: 'border-emerald-100 bg-emerald-50/70 text-emerald-700',
+    red: 'border-rose-100 bg-rose-50/70 text-rose-700',
+    gray: 'border-brand-border bg-white text-brand-blue',
+  };
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-      {cards.map((card, index) => (
+    <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {cards.map((card) => (
         <div
-          key={index}
-          className={`p-5 rounded-2xl border ${card.bgColor} ${card.borderColor} flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow`}
+          key={card.title}
+          className={`flex flex-col justify-between rounded-2xl border p-5 shadow-sm transition-shadow hover:shadow-md ${tones[card.tone]}`}
         >
-          <div className="text-xl mb-3">{card.icon}</div>
+          <span aria-hidden="true" className="mb-3 text-xl">{card.icon}</span>
           <div>
-            <span className={`text-2xl font-bold ${card.valueColor} block`}>
-              {card.value}
-            </span>
-            <span className="text-xs font-medium text-slate-500">
-              {card.title}
-            </span>
+            <span className="block text-2xl font-bold">{card.value}</span>
+            <span className="text-xs font-medium text-brand-gray">{card.title}</span>
           </div>
         </div>
       ))}

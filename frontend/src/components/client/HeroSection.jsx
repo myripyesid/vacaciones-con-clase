@@ -1,6 +1,6 @@
 export default function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center pt-24 pb-16 px-6 md:px-16 overflow-hidden">
+    <section className="relative min-h-screen flex items-center pt-24 pb-16 px-5 sm:px-6 md:px-16 overflow-hidden">
       {/* Imagen de fondo con overlay oscuro */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
@@ -16,15 +16,15 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-2xl text-white my-auto">
         {/* Etiqueta superior */}
         <div className="flex items-center gap-3 mb-4">
-          <span className="w-8 h-[1px] bg-[#CA8A04]"></span>
-          <span className="text-xs tracking-[0.2em] text-[#CA8A04] font-semibold uppercase">
+          <span className="w-8 h-[1px] bg-blue-200"></span>
+          <span className="text-xs tracking-[0.2em] text-blue-100 font-semibold uppercase">
             Agencia de viajes certificada
           </span>
         </div>
 
         {/* Título principal */}
-        <h1 className="text-5xl md:text-6xl font-serif leading-[1.15] mb-6 font-normal">
-          Viaja con <span className="text-[#CA8A04] italic font-serif">estilo</span> <br />
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif leading-[1.15] mb-6 font-normal">
+          Viaja con <span className="text-blue-100 italic font-serif">estilo</span> <br />
           y con clase
         </h1>
 
@@ -37,9 +37,9 @@ export default function HeroSection() {
         <div className="flex flex-wrap items-center gap-4 mb-16">
           <a
             href="#catalogo"
-            className="bg-[#CA8A04] hover:bg-[#b57a03] text-slate-950 text-xs font-bold px-6 py-3.5 rounded-full transition-all duration-200 flex items-center gap-2 shadow-lg"
+            className="bg-white hover:bg-slate-100 text-brand-blue text-xs font-bold px-6 py-3.5 rounded-full transition-all duration-200 flex items-center gap-2 shadow-lg"
           >
-            Ver planes ✈
+            Ver planes
           </a>
           <a
             href="#destinos"
@@ -50,7 +50,7 @@ export default function HeroSection() {
         </div>
 
         {/* Métricas / Estadísticas */}
-        <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-700/50 max-w-md">
+        <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-6 border-t border-slate-700/50 max-w-md">
           <div>
             <span className="text-2xl font-bold text-white block">+500</span>
             <span className="text-xs text-slate-400">Viajeros felices</span>

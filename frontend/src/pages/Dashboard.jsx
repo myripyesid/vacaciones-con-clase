@@ -46,7 +46,7 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-[#faf8f5]">
+    <div className="flex min-h-screen flex-col bg-brand-gray-light md:flex-row">
       {/* Sidebar Fijo con navegación activa */}
       <Sidebar 
         onLogout={onLogout} 
@@ -55,7 +55,7 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
       />
 
       {/* Área de Contenido Principal */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <DashboardHeader />
 
         {/* Manejo de Carga y Errores */}
@@ -68,7 +68,7 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
         )}
 
         {error && (
-          <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl mb-6 text-sm">
+          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             <strong className="font-bold">Error: </strong>
             <span>{error}</span>
           </div>

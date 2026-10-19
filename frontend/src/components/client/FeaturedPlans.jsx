@@ -5,20 +5,20 @@ export default function FeaturedPlans({ plans, loading, error, onSelectPlan, onG
   const safePlans = Array.isArray(plans) ? plans : [];
 
   return (
-    <section id="planes" className="py-20 px-6 bg-[#FAF8F5]">
+    <section id="planes" className="py-20 px-6 bg-[#F3F5F8]">
       <div className="max-w-6xl mx-auto">
         
         {/* Encabezado */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <span className="w-8 h-[1px] bg-[#D4A338]"></span>
-            <span className="text-[11px] tracking-[0.25em] text-[#D4A338] font-semibold uppercase">
+            <span className="w-8 h-[1px] bg-[#0D237D]"></span>
+            <span className="text-[11px] tracking-[0.25em] text-[#0D237D] font-semibold uppercase">
               DESTINOS DESTACADOS
             </span>
-            <span className="w-8 h-[1px] bg-[#D4A338]"></span>
+            <span className="w-8 h-[1px] bg-[#0D237D]"></span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl font-serif text-[#0F172A] mb-3 font-normal">
+          <h2 className="text-4xl md:text-5xl font-serif text-[#0D237D] mb-3 font-normal">
             Planes que enamoran
           </h2>
           
