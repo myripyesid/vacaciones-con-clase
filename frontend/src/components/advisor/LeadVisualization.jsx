@@ -42,7 +42,8 @@ export const LEAD_ROW_GRID = 'grid grid-cols-[2.5fr_2fr_1fr_1.3fr] items-center'
 
 export default function LeadVisualization({ lead }) {
   const avatarColor = getAvatarColor(lead.cliente_nombre);
-  const estadoConfig = ESTADO_CONFIG[lead.estado] || {
+  const estadoNormalizado = lead.estado?.toUpperCase();
+  const estadoConfig = ESTADO_CONFIG[estadoNormalizado] || {
     label: lead.estado || '—',
     bg: 'bg-slate-50',
     text: 'text-slate-600',
@@ -58,6 +59,9 @@ export default function LeadVisualization({ lead }) {
         <div className="min-w-0">
           <p className="text-sm font-medium text-slate-900 truncate">{lead.cliente_nombre}</p>
           <p className="text-xs text-slate-500 truncate">{lead.cliente_email}</p>
+          {lead.cliente_telefono && (
+            <p className="text-xs text-slate-500 truncate">{lead.cliente_telefono}</p>
+          )}
         </div>
       </div>
 

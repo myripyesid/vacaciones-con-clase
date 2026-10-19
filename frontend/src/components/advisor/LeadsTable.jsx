@@ -7,7 +7,7 @@ export default function LeadsTable({ leads = [] }) {
 
   const visibleLeads = estadoFilter === 'TODOS'
     ? leads
-    : leads.filter((lead) => lead.estado === estadoFilter);
+    : leads.filter((lead) => lead.estado?.toUpperCase() === estadoFilter);
 
   return (
     <div>
