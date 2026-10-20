@@ -12,13 +12,14 @@ export default function Form({ plan, onBack, onSuccess }) {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
@@ -43,11 +44,20 @@ export default function Form({ plan, onBack, onSuccess }) {
       }
 
       const data = await response.json();
-      if (onSuccess) {
-        onSuccess(data);
-      } else {
-        if (onBack) onBack();
-      }
+      
+      // 1. Muestra el mensaje de éxito
+      setShowSuccess(true);
+
+      // 2. Espera 3 segundos antes de ejecutar la acción que cierra el componente
+      setTimeout(() => {
+        setShowSuccess(false);
+        if (onSuccess) {
+          onSuccess(data);
+        } else if (onBack) {
+          onBack();
+        }
+      }, 2000);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -238,6 +248,12 @@ export default function Form({ plan, onBack, onSuccess }) {
         </div>
 
       </div>
+          {showSuccess && (
+            <div className="mt-4 p-3 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-sm text-center font-medium animate-pulse">
+              ✓ ¡Solicitud enviada con éxito! Hemos recibido tu información.
+            </div>
+)}
+
     </div>
   );
 }
