@@ -1,8 +1,9 @@
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import generics # type: ignore
 from .models import Plan
-from .serializers import LeadCreateSerializer, PlanSerializer, LeadCreateSerializer  
+from .serializers import LeadCreateSerializer, PlanSerializer, LeadCreateSerializer
 from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
@@ -10,14 +11,46 @@ from .models import Plan, Cliente, Lead, Asesor
 from .serializers import SolicitudCrearSerializer, LeadSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-# Vista para HU-01 y HU-02 (Listar todo el catálogo)
+# Vista para HU-01, HU-02 y HU-05 (Listar el catálogo y filtrarlo por criterios)
 class PlanListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
-    # 1. ¿Qué datos vamos a buscar en la base de datos?
-    queryset = Plan.objects.filter(activo=True) 
-    
-    # 2. ¿Quién se encarga de traducir estos objetos a JSON?
     serializer_class = PlanSerializer
+
+    def get_queryset(self):
+        """
+        Acepta filtros opcionales por query params:
+        ?destino=Cartagena&precio_min=1000000&precio_max=3000000&q=playa
+        """
+        queryset = Plan.objects.filter(activo=True)
+        params = self.request.query_params
+
+        destino = params.get('destino')
+        if destino:
+            queryset = queryset.filter(destino__iexact=destino)
+
+        precio_min = params.get('precio_min')
+        if precio_min:
+            try:
+                queryset = queryset.filter(precio_referencia__gte=float(precio_min))
+            except ValueError:
+                pass
+
+        precio_max = params.get('precio_max')
+        if precio_max:
+            try:
+                queryset = queryset.filter(precio_referencia__lte=float(precio_max))
+            except ValueError:
+                pass
+
+        texto = params.get('q')
+        if texto:
+            queryset = queryset.filter(
+                Q(titulo__icontains=texto)
+                | Q(descripcion__icontains=texto)
+                | Q(destino__icontains=texto)
+            )
+
+        return queryset
 
 # Vista para HU-03 y HU-04 (Detalle de un plan específico)
 class PlanDetailAPIView(generics.RetrieveAPIView):
@@ -117,9 +150,9 @@ class LeadCreateAPIView(APIView):
                 plan=plan,
                 asesor=asesor_asignado,
                 presupuesto=data.get('presupuesto'),
-                fechas_tentativas=data.get('fechas_tentativas', ''),
+                fechas_tentativas=data.get('fechas_tentativas'),
                 observaciones=data.get('observaciones', ''),
-                estado='nuevo'  # Estado inicial por defecto
+                estado='NUEVO'  # Estado inicial por defecto
             )
 
         # 5. Construcción de la respuesta exitosa (HTTP 201 Created)
