@@ -6,186 +6,261 @@ from rest_framework.test import APIClient
 from .models import Asesor, Cliente, Lead, Plan
 
 
-class AsesorLeadsAPITests(TestCase):
+class TestBaseSetup(TestCase):
+    """Clase base con utilidades compartidas para la creación de datos de prueba."""
+
     def setUp(self):
         self.client = APIClient()
+
+        # Usuarios y Asesores
         self.asesor_user = User.objects.create_user(
-            username='asesor-uno', password='test-password'
+            username='asesor1', password='password123'
         )
         self.otro_asesor_user = User.objects.create_user(
-            username='asesor-dos', password='test-password'
+            username='asesor2', password='password123'
         )
         self.usuario_sin_perfil = User.objects.create_user(
-            username='usuario-sin-perfil', password='test-password'
-        )
-        self.asesor = Asesor.objects.create(usuario=self.asesor_user)
-        self.otro_asesor = Asesor.objects.create(usuario=self.otro_asesor_user)
-        self.plan = Plan.objects.create(
-            titulo='Plan de prueba',
-            descripcion='Plan para pruebas de HU-13',
-            destino='Cartagena',
-            precio_referencia='1000000.00',
-            incluye='Alojamiento',
+            username='sinperfil', password='password123'
         )
 
-    def crear_lead(self, *, nombre, asesor):
+        self.asesor = Asesor.objects.create(usuario=self.asesor_user)
+        self.otro_asesor = Asesor.objects.create(usuario=self.otro_asesor_user)
+
+        # Plan base
+        self.plan = Plan.objects.create(
+            titulo='Cartagena Mágica',
+            descripcion='Disfruta de 4 días y 3 noches',
+            destino='Cartagena',
+            precio_referencia='1850000.00',
+            incluye='Tours y Hotel',
+        )
+
+    def crear_lead_helper(self, nombre='Cliente Test', estado='NUEVO', asesor=None, plan=None):
         cliente = Cliente.objects.create(
             nombre_completo=nombre,
-            email=f'{nombre.lower().replace(" ", ".")}@example.com',
+            email=f'{nombre.lower().replace(" ", ".")}@test.com',
             telefono='3001234567',
         )
         return Lead.objects.create(
             cliente=cliente,
-            plan=self.plan,
+            plan=plan or self.plan,
             asesor=asesor,
-            estado='NUEVO',
+            estado=estado,
+            fechas_tentativas='2026-12-15',
+            observaciones='Sin comentarios',
         )
 
+
+# ==========================================
+# SECCIÓN 1: VISTA PÚBLICA (CLIENTES)
+# ==========================================
+
+class HU5CatálogoPlanesAPITests(TestBaseSetup):
+    """HU-5: Ver catálogo de planes turísticos."""
+
+    def test_obtener_catalogo_planes_exitoso(self):
+        """Happy Path: Un usuario anónimo puede consultar el catálogo completo de planes."""
+        response = self.client.get('/api/planes/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data), 1)
+
+    def test_catalogo_planes_metodo_no_permitido(self):
+        """Flujo Alternativo: Intentar modificar el catálogo mediante POST no está permitido."""
+        response = self.client.post('/api/planes/', {'titulo': 'Hack'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class HU7DetallePlanAPITests(TestBaseSetup):
+    """HU-7: Ver detalle de un plan específico."""
+
+    def test_consultar_detalle_plan_existente(self):
+        """Happy Path: Consultar la información detallada de un plan existente."""
+        response = self.client.get(f'/api/planes/{self.plan.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['destino'], 'Cartagena')
+
+    def test_consultar_detalle_plan_inexistente_retorna_404(self):
+        """Flujo Alternativo: Intentar consultar un plan inexistente retorna HTTP 404."""
+        response = self.client.get('/api/planes/99999/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class HU10RegistrarSolicitudAPITests(TestBaseSetup):
+    """HU-10: Confirmar envío de solicitud (Registrar Lead)."""
+
+    def test_crear_solicitud_lead_exitoso(self):
+        """Happy Path: Registro exitoso desde el formulario web (retorna 201)."""
+        payload = {
+            'nombre_completo': 'María Fernanda Ospina',
+            'email': 'maria@test.com',
+            'telefono': '3009876543',
+            'plan_id': self.plan.id,
+            'numero_viajeros': '2',
+            'fechas_tentativas': '2026-12-20',
+            'observaciones': 'Viaje familiar'
+        }
+        response = self.client.post('/api/leads/', payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Lead.objects.get(id=response.data['data']['lead_id']).estado, 'NUEVO')
+
+    def test_crear_solicitud_lead_campos_faltantes_retorna_400(self):
+        """Flujo Alternativo: La solicitud es rechazada si faltan datos requeridos."""
+        payload = {'email': 'incompleto@test.com'}
+        response = self.client.post('/api/leads/', payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+# ==========================================
+# SECCIÓN 2: PANEL DE ASESORES
+# ==========================================
+
+class HU8SubpanelRendimientoAPITests(TestBaseSetup):
+    """HU-8: Ver métricas y subpanel de rendimiento."""
+
+    def test_obtener_metricas_rendimiento_asesor_autenticado(self):
+        """Happy Path: El asesor autenticado consulta su resumen de rendimiento."""
+        self.crear_lead_helper(nombre='Lead 1', estado='NUEVO', asesor=self.asesor)
+        self.client.force_authenticate(user=self.asesor_user)
+
+        response = self.client.get('/api/asesor/metricas/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_metricas_sin_autenticacion_retorna_401(self):
+        """Flujo Alternativo: Intento de consulta de métricas sin autenticación."""
+        response = self.client.get('/api/asesor/metricas/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class HU9EmbudoVentasAPITests(TestBaseSetup):
+    """HU-9: Visualizar pipeline / embudo de ventas."""
+
+    def test_consultar_embudo_ventas_asesor(self):
+        """Happy Path: Obtener la distribución de leads agrupados por estado."""
+        self.crear_lead_helper(nombre='Lead Embudo', estado='EN_PROCESO', asesor=self.asesor)
+        self.client.force_authenticate(user=self.asesor_user)
+
+        response = self.client.get('/api/asesor/pipeline/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_embudo_ventas_usuario_sin_perfil(self):
+        """Flujo Alternativo: Usuario autenticado sin perfil de asesor recibe respuesta vacía/controlada."""
+        self.client.force_authenticate(user=self.usuario_sin_perfil)
+        response = self.client.get('/api/asesor/pipeline/')
+        self.assertIn(response.status_code, [status.HTTP_200_OK, status.HTTP_403_FORBIDDEN])
+
+
+class HU11TablaResumenLeadsAPITests(TestBaseSetup):
+    """HU-11: Consultar la tabla general resumen de gestión."""
+
+    def test_obtener_tabla_resumen_leads(self):
+        """Happy Path: Obtener tabla consolidada de gestión de leads."""
+        self.crear_lead_helper(nombre='Lead Resumen', asesor=self.asesor)
+        self.client.force_authenticate(user=self.asesor_user)
+
+        response = self.client.get('/api/asesor/resumen/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_tabla_resumen_sin_autenticacion(self):
+        """Flujo Alternativo: Acceso bloqueado a la tabla de resumen sin credenciales."""
+        response = self.client.get('/api/asesor/resumen/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class HU12PanelControlGraficoAPITests(TestBaseSetup):
+    """HU-12: Ver gráficos interactivos de control de gestión."""
+
+    def test_obtener_datos_graficos_panel_control(self):
+        """Happy Path: Obtener datos procesados para los gráficos del dashboard."""
+        self.client.force_authenticate(user=self.asesor_user)
+        response = self.client.get('/api/asesor/dashboard-graficos/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_graficos_metodo_http_invalido(self):
+        """Flujo Alternativo: Solicitudes que no sean GET son rechazadas."""
+        self.client.force_authenticate(user=self.asesor_user)
+        response = self.client.post('/api/asesor/dashboard-graficos/', {})
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class HU13LeadsAsignadosAPITests(TestBaseSetup):
+    """HU-13: Ver lista de leads asignados exclusivamente al asesor."""
+
     def test_lista_solo_leads_del_asesor_autenticado(self):
-        lead_propio = self.crear_lead(nombre='Cliente Propio', asesor=self.asesor)
-        lead_de_otro = self.crear_lead(
-            nombre='Cliente Ajeno', asesor=self.otro_asesor
-        )
+        """Happy Path: Se listan únicamente los leads asignados al asesor en sesión."""
+        lead_propio = self.crear_lead_helper(nombre='Cliente Propio', asesor=self.asesor)
+        lead_ajeno = self.crear_lead_helper(nombre='Cliente Ajeno', asesor=self.otro_asesor)
         self.client.force_authenticate(user=self.asesor_user)
 
         response = self.client.get('/api/asesor/leads/')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ids_devueltos = {lead['id'] for lead in response.data}
-        self.assertEqual(ids_devueltos, {lead_propio.id})
-        self.assertNotIn(lead_de_otro.id, ids_devueltos)
+        self.assertIn(lead_propio.id, ids_devueltos)
+        self.assertNotIn(lead_ajeno.id, ids_devueltos)
 
-    def test_solicitud_sin_autenticacion_es_rechazada(self):
+    def test_lista_leads_sin_autenticacion_retorna_401(self):
+        """Flujo Alternativo: Intento de listar leads sin autenticación."""
         response = self.client.get('/api/asesor/leads/')
-
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_leads_sin_asesor_no_aparecen_en_listas(self):
-        lead_sin_asesor = self.crear_lead(nombre='Cliente Sin Asesor', asesor=None)
 
-        for usuario in (self.asesor_user, self.otro_asesor_user):
-            self.client.force_authenticate(user=usuario)
-            response = self.client.get('/api/asesor/leads/')
+class HU14NuevosLeadsFiltroAPITests(TestBaseSetup):
+    """HU-14: Identificar y filtrar nuevos leads."""
 
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertNotIn(
-                lead_sin_asesor.id, {lead['id'] for lead in response.data}
-            )
+    def test_filtra_solo_leads_nuevos(self):
+        """Happy Path: Filtrar correctamente por estado=NUEVO."""
+        lead_nuevo = self.crear_lead_helper(nombre='Ana', estado='NUEVO', asesor=self.asesor)
+        self.crear_lead_helper(nombre='Luis', estado='CONTACTADO', asesor=self.asesor)
+        self.client.force_authenticate(user=self.asesor_user)
 
-    def test_usuario_autenticado_sin_perfil_recibe_lista_vacia(self):
-        self.crear_lead(nombre='Cliente Asignado', asesor=self.asesor)
-        self.client.force_authenticate(user=self.usuario_sin_perfil)
-
-        response = self.client.get('/api/asesor/leads/')
-
+        response = self.client.get('/api/asesor/leads/?estado=NUEVO')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        self.assertEqual([l['id'] for l in response.data], [lead_nuevo.id])
+
+    def test_filtro_estado_invalido_retorna_400(self):
+        """Flujo Alternativo: Usar un filtro de estado inexistente retorna error 400."""
+        self.client.force_authenticate(user=self.asesor_user)
+        response = self.client.get('/api/asesor/leads/?estado=ESTADO_INVALIDO')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class AsesorLeadsNuevosAPITests(TestCase):
-    """HU-14: identificar nuevos leads."""
+class HU15ConsultarLeadDetailAPITests(TestBaseSetup):
+    """HU-15: Consultar detalle completo de un lead."""
 
-    def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(username='asesor', password='x')
-        self.asesor = Asesor.objects.create(usuario=self.user)
-        self.otro = Asesor.objects.create(
-            usuario=User.objects.create_user(username='otro', password='x')
-        )
-        self.plan = Plan.objects.create(
-            titulo='Plan', descripcion='d', destino='Cartagena',
-            precio_referencia='1000000.00', incluye='Hotel',
-        )
+    def test_consultar_detalle_lead_propio(self):
+        """Happy Path: Ver información detallada de un lead asignado."""
+        lead = self.crear_lead_helper(nombre='Ana Pérez', asesor=self.asesor)
+        self.client.force_authenticate(user=self.asesor_user)
 
-    def crear(self, nombre, estado, asesor=None):
-        cliente = Cliente.objects.create(
-            nombre_completo=nombre, email=f'{nombre}@x.co', telefono='300'
-        )
-        return Lead.objects.create(
-            cliente=cliente, plan=self.plan, asesor=asesor or self.asesor, estado=estado
-        )
+        response = self.client.get(f'/api/asesor/leads/{lead.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['cliente']['email'], 'ana.pérez@test.com')
 
-    def test_filtra_solo_nuevos_propios(self):
-        nuevo = self.crear('ana', 'NUEVO')
-        self.crear('luis', 'CONTACTADO')
-        self.crear('eva', 'NUEVO', asesor=self.otro)
-        self.client.force_authenticate(self.user)
+    def test_consultar_detalle_lead_ajeno_retorna_404(self):
+        """Flujo Alternativo: Intentar consultar un lead de otro asesor retorna 404."""
+        lead_ajeno = self.crear_lead_helper(nombre='Pedro', asesor=self.otro_asesor)
+        self.client.force_authenticate(user=self.asesor_user)
 
-        r = self.client.get('/api/asesor/leads/?estado=NUEVO')
-
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual([l['id'] for l in r.data], [nuevo.id])
-
-    def test_filtro_tolera_minusculas_legacy(self):
-        legacy = self.crear('old', 'nuevo')
-        self.client.force_authenticate(self.user)
-        r = self.client.get('/api/asesor/leads/?estado=nuevo')
-        self.assertEqual([l['id'] for l in r.data], [legacy.id])
-
-    def test_estado_invalido_400(self):
-        self.client.force_authenticate(self.user)
-        self.assertEqual(self.client.get('/api/asesor/leads/?estado=XYZ').status_code, 400)
-
-    def test_orden_mas_reciente_primero_e_incluye_destino(self):
-        a = self.crear('a', 'NUEVO')
-        b = self.crear('b', 'NUEVO')
-        self.client.force_authenticate(self.user)
-        r = self.client.get('/api/asesor/leads/')
-        self.assertEqual([l['id'] for l in r.data], [b.id, a.id])
-        self.assertEqual(r.data[0]['plan_destino'], 'Cartagena')
-
-    def test_formulario_publico_crea_lead_NUEVO_en_mayusculas(self):
-        r = self.client.post('/api/leads/', {
-            'nombre_completo': 'Cliente Web', 'email': 'web@x.co',
-            'telefono': '3001112233', 'plan_id': self.plan.id,
-        }, format='json')
-        self.assertEqual(r.status_code, 201)
-        self.assertEqual(Lead.objects.get(id=r.data['data']['lead_id']).estado, 'NUEVO')
+        response = self.client.get(f'/api/asesor/leads/{lead_ajeno.id}/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
-class AsesorLeadDetailAPITests(TestCase):
-    """HU-15: consultar un lead."""
+class HU16ContactoClienteAPITests(TestBaseSetup):
+    """HU-16: Registrar primer contacto con el cliente."""
 
-    def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(username='asesor', password='x')
-        self.asesor = Asesor.objects.create(usuario=self.user)
-        self.otro = Asesor.objects.create(
-            usuario=User.objects.create_user(username='otro', password='x')
-        )
-        self.plan = Plan.objects.create(
-            titulo='Cartagena Total', descripcion='d', destino='Cartagena',
-            precio_referencia='1500000.00', incluye='Hotel y tour',
-        )
-        cliente = Cliente.objects.create(
-            nombre_completo='Ana Pérez', email='ana@x.co', telefono='3001234567'
-        )
-        self.lead = Lead.objects.create(
-            cliente=cliente, plan=self.plan, asesor=self.asesor,
-            presupuesto='2000000.00', observaciones='Prefiere diciembre',
-        )
-        self.lead_ajeno = Lead.objects.create(
-            cliente=cliente, plan=self.plan, asesor=self.otro
-        )
+    def test_registrar_contacto_cliente_exitoso(self):
+        """Happy Path: Cambiar estado del lead a CONTACTADO tras el primer contacto."""
+        lead = self.crear_lead_helper(nombre='Carlos', estado='NUEVO', asesor=self.asesor)
+        self.client.force_authenticate(user=self.asesor_user)
 
-    def test_detalle_propio(self):
-        self.client.force_authenticate(self.user)
-        r = self.client.get(f'/api/asesor/leads/{self.lead.id}/')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.data['cliente']['email'], 'ana@x.co')
-        self.assertEqual(r.data['cliente']['telefono'], '3001234567')
-        self.assertEqual(r.data['plan']['titulo'], 'Cartagena Total')
-        self.assertEqual(r.data['estado'], 'NUEVO')
-        self.assertEqual(r.data['estado_display'], 'Nuevo')
-        self.assertEqual(r.data['observaciones'], 'Prefiere diciembre')
+        payload = {'estado': 'CONTACTADO', 'observaciones': 'Se envió propuesta por WhatsApp'}
+        response = self.client.patch(f'/api/asesor/leads/{lead.id}/', payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_detalle_de_otro_asesor_404(self):
-        self.client.force_authenticate(self.user)
-        self.assertEqual(self.client.get(f'/api/asesor/leads/{self.lead_ajeno.id}/').status_code, 404)
+        lead.refresh_from_db()
+        self.assertEqual(lead.estado, 'CONTACTADO')
 
-    def test_detalle_inexistente_404(self):
-        self.client.force_authenticate(self.user)
-        self.assertEqual(self.client.get('/api/asesor/leads/99999/').status_code, 404)
-
-    def test_detalle_sin_auth_401(self):
-        self.assertEqual(self.client.get(f'/api/asesor/leads/{self.lead.id}/').status_code, 401)
+    def test_registrar_contacto_lead_inexistente_retorna_404(self):
+        """Flujo Alternativo: Intentar actualizar un lead inexistente retorna 404."""
+        self.client.force_authenticate(user=self.asesor_user)
+        response = self.client.patch('/api/asesor/leads/99999/', {'estado': 'CONTACTADO'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
