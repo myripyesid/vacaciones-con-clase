@@ -1,0 +1,259 @@
+import { useState } from 'react';
+
+export default function Form({ plan, onBack, onSuccess }) {
+  const [formData, setFormData] = useState({
+    nombre_completo: '',
+    email: '',
+    telefono: '',
+    numero_viajeros: '',
+    fechas_tentativas: '',
+    observaciones: '',
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    const payload = {
+      ...formData,
+      plan_id: plan?.id,
+      fechas_tentativas: formData.fechas_tentativas || null,
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/leads/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al enviar la solicitud. Intenta nuevamente.');
+      }
+
+      const data = await response.json();
+      
+      // 1. Muestra el mensaje de éxito
+      setShowSuccess(true);
+
+      // 2. Espera 3 segundos antes de ejecutar la acción que cierra el componente
+      setTimeout(() => {
+        setShowSuccess(false);
+        if (onSuccess) {
+          onSuccess(data);
+        } else if (onBack) {
+          onBack();
+        }
+      }, 2000);
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Formateo dinámico del precio
+  const formattedPrice = plan?.precio
+    ? `$${Number(plan.precio).toLocaleString('es-CO')}`
+    : '$1.850.000';
+
+  return (
+    <div className="min-h-screen bg-brand-gray-light px-4 pb-16 pt-28 flex flex-col items-center">
+      <div className="w-full max-w-xl space-y-6">
+        
+        {/* Tarjeta Resumen del Plan */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img
+              src={plan?.imagen || plan?.image_url || 'https://images.unsplash.com/photo-1583531172005-814191b8b6c0?auto=format&fit=crop&w=300&q=80'}
+              alt={plan?.destino || 'Plan seleccionado'}
+              className="w-16 h-16 rounded-xl object-cover"
+            />
+            <div>
+              <span className="text-[11px] text-slate-400 font-medium block">
+                {plan?.ubicacion || 'Bolívar, Colombia'}
+              </span>
+              <h3 className="text-base font-bold text-slate-900 leading-tight">
+                {plan?.destino || plan?.titulo || 'Cartagena Mágica'}
+              </h3>
+              <span className="text-xs text-slate-500 font-light block mt-0.5">
+                {plan?.duracion || '4 días / 3 noches'}
+              </span>
+            </div>
+          </div>
+
+          <div className="text-right whitespace-nowrap">
+            <span className="text-[10px] text-slate-400 block uppercase tracking-wider">Desde</span>
+            <span className="text-lg font-bold text-[#0D237D]">
+              {formattedPrice}
+            </span>
+          </div>
+        </div>
+
+        {/* Tarjeta Principal del Formulario */}
+        <div className="bg-white rounded-2xl p-5 sm:p-8 md:p-10 shadow-sm border border-brand-border">
+          
+          {/* Encabezado */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="w-6 h-[1px] bg-[#0D237D]"></span>
+              <span className="text-[10px] tracking-[0.2em] text-[#0D237D] font-bold uppercase">
+                TU SOLICITUD
+              </span>
+            </div>
+            <h2 className="text-3xl font-serif text-slate-900 font-normal mb-2">
+              ¿Nos cuentas más?
+            </h2>
+            <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
+              Completa tus datos y un asesor especializado te contactará en menos de 24 horas con una propuesta personalizada.
+            </p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-3 bg-rose-50 border border-rose-200 text-rose-600 text-xs rounded-xl text-center">
+              {error}
+            </div>
+          )}
+
+          {/* Formulario */}
+          <form onSubmit={handleSubmit} className="space-y-5 text-left">
+            
+            {/* Nombre completo */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Nombre completo <span className="text-[#0D237D]">*</span>
+              </label>
+              <input
+                type="text"
+                name="nombre_completo"
+                required
+                placeholder="Ej. María Fernanda Ospina"
+                value={formData.nombre_completo}
+                onChange={handleChange}
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* Correo y Teléfono */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Correo electrónico <span className="text-[#0D237D]">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="correo@ejemplo.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Teléfono / WhatsApp <span className="text-[#0D237D]">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="telefono"
+                  required
+                  placeholder="3001234567"
+                  value={formData.telefono}
+                  onChange={handleChange}
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Número de viajeros y Fecha */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Número de viajeros <span className="text-[#0D237D]">*</span>
+                </label>
+                <select
+                  name="numero_viajeros"
+                  required
+                  value={formData.numero_viajeros}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all cursor-pointer"
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="1">1 viajero</option>
+                  <option value="2">2 viajeros</option>
+                  <option value="3-5">3 - 5 viajeros</option>
+                  <option value="6+">6+ viajeros (Grupo)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Fecha aproximada <span className="text-[#0D237D]">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="fechas_tentativas"
+                  required
+                  value={formData.fechas_tentativas}
+                  onChange={handleChange}
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Comentarios adicionales */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                Comentarios adicionales <span className="text-slate-400 font-normal">(opcional)</span>
+              </label>
+              <textarea
+                name="observaciones"
+                rows="3"
+                placeholder="Cuéntanos sobre tu viaje ideal, necesidades especiales, presupuesto disponible, o cualquier detalle importante..."
+                value={formData.observaciones}
+                onChange={handleChange}
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/15 focus:bg-white transition-all resize-none"
+              ></textarea>
+            </div>
+
+            {/* Botón Submit */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-brand-blue hover:bg-brand-blue-dark active:scale-[0.99] text-white font-bold text-xs py-4 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+            >
+              {submitting ? 'Enviando...' : '✈ Enviar solicitud'}
+            </button>
+
+            <p className="text-[10px] text-slate-400 text-center font-light pt-1">
+              Tu información es confidencial y no será compartida con terceros.
+            </p>
+
+          </form>
+        </div>
+
+      </div>
+          {showSuccess && (
+            <div className="mt-4 p-3 bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-sm text-center font-medium animate-pulse">
+              ✓ ¡Solicitud enviada con éxito! Hemos recibido tu información.
+            </div>
+)}
+
+    </div>
+  );
+}
