@@ -82,189 +82,110 @@ class AsesorLeadsAPITests(TestCase):
         self.assertEqual(response.data, [])
 
 
-class LeadCreateAPITests(TestCase):
-    """Pruebas para HU-11: creación automática de Lead al enviar el formulario público."""
+class AsesorLeadsNuevosAPITests(TestCase):
+    """HU-14: identificar nuevos leads."""
 
     def setUp(self):
         self.client = APIClient()
+        self.user = User.objects.create_user(username='asesor', password='x')
+        self.asesor = Asesor.objects.create(usuario=self.user)
+        self.otro = Asesor.objects.create(
+            usuario=User.objects.create_user(username='otro', password='x')
+        )
         self.plan = Plan.objects.create(
-            titulo='Plan de prueba',
-            descripcion='Plan para pruebas de HU-11',
-            destino='Cartagena',
-            precio_referencia='1000000.00',
-            incluye='Alojamiento',
-            activo=True,
-        )
-        self.plan_inactivo = Plan.objects.create(
-            titulo='Plan inactivo',
-            descripcion='No deberia poder asignarse',
-            destino='San Andrés',
-            precio_referencia='900000.00',
-            incluye='Alojamiento',
-            activo=False,
-        )
-        self.payload_valido = {
-            'nombre_completo': 'Juana Pérez',
-            'email': 'juana.perez@example.com',
-            'telefono': '3001234567',
-            'plan_id': self.plan.id,
-            'presupuesto': '1200000.00',
-            'observaciones': 'Prefiero vuelos en la mañana',
-        }
-
-    def test_envio_valido_crea_lead_con_estado_inicial_definido(self):
-        response = self.client.post(
-            '/api/leads/', self.payload_valido, format='json'
+            titulo='Plan', descripcion='d', destino='Cartagena',
+            precio_referencia='1000000.00', incluye='Hotel',
         )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Lead.objects.count(), 1)
-
-        lead = Lead.objects.first()
-        self.assertEqual(lead.estado, 'NUEVO')
-        self.assertIn(lead.estado, dict(Lead.ESTADOS))
-
-    def test_lead_contiene_la_informacion_del_cliente_y_queda_asociado_al_plan(self):
-        self.client.post('/api/leads/', self.payload_valido, format='json')
-
-        lead = Lead.objects.first()
-        self.assertEqual(lead.plan_id, self.plan.id)
-        self.assertEqual(lead.cliente.nombre_completo, 'Juana Pérez')
-        self.assertEqual(lead.cliente.email, 'juana.perez@example.com')
-        self.assertEqual(lead.cliente.telefono, '3001234567')
-
-    def test_reutiliza_cliente_existente_con_el_mismo_email(self):
-        Cliente.objects.create(
-            nombre_completo='Juana Pérez',
-            email='juana.perez@example.com',
-            telefono='3001234567',
+    def crear(self, nombre, estado, asesor=None):
+        cliente = Cliente.objects.create(
+            nombre_completo=nombre, email=f'{nombre}@x.co', telefono='300'
+        )
+        return Lead.objects.create(
+            cliente=cliente, plan=self.plan, asesor=asesor or self.asesor, estado=estado
         )
 
-        self.client.post('/api/leads/', self.payload_valido, format='json')
+    def test_filtra_solo_nuevos_propios(self):
+        nuevo = self.crear('ana', 'NUEVO')
+        self.crear('luis', 'CONTACTADO')
+        self.crear('eva', 'NUEVO', asesor=self.otro)
+        self.client.force_authenticate(self.user)
 
-        self.assertEqual(Cliente.objects.count(), 1)
-        self.assertEqual(Lead.objects.count(), 1)
+        r = self.client.get('/api/asesor/leads/?estado=NUEVO')
 
-    def test_no_crea_lead_si_faltan_campos_requeridos(self):
-        payload_incompleto = {**self.payload_valido}
-        del payload_incompleto['email']
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual([l['id'] for l in r.data], [nuevo.id])
 
-        response = self.client.post(
-            '/api/leads/', payload_incompleto, format='json'
-        )
+    def test_filtro_tolera_minusculas_legacy(self):
+        legacy = self.crear('old', 'nuevo')
+        self.client.force_authenticate(self.user)
+        r = self.client.get('/api/asesor/leads/?estado=nuevo')
+        self.assertEqual([l['id'] for l in r.data], [legacy.id])
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Lead.objects.count(), 0)
+    def test_estado_invalido_400(self):
+        self.client.force_authenticate(self.user)
+        self.assertEqual(self.client.get('/api/asesor/leads/?estado=XYZ').status_code, 400)
 
-    def test_no_crea_lead_si_el_plan_no_existe(self):
-        payload_plan_invalido = {**self.payload_valido, 'plan_id': 999999}
+    def test_orden_mas_reciente_primero_e_incluye_destino(self):
+        a = self.crear('a', 'NUEVO')
+        b = self.crear('b', 'NUEVO')
+        self.client.force_authenticate(self.user)
+        r = self.client.get('/api/asesor/leads/')
+        self.assertEqual([l['id'] for l in r.data], [b.id, a.id])
+        self.assertEqual(r.data[0]['plan_destino'], 'Cartagena')
 
-        response = self.client.post(
-            '/api/leads/', payload_plan_invalido, format='json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Lead.objects.count(), 0)
-
-    def test_no_crea_lead_si_el_plan_esta_inactivo(self):
-        payload_plan_inactivo = {
-            **self.payload_valido, 'plan_id': self.plan_inactivo.id
-        }
-
-        response = self.client.post(
-            '/api/leads/', payload_plan_inactivo, format='json'
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Lead.objects.count(), 0)
+    def test_formulario_publico_crea_lead_NUEVO_en_mayusculas(self):
+        r = self.client.post('/api/leads/', {
+            'nombre_completo': 'Cliente Web', 'email': 'web@x.co',
+            'telefono': '3001112233', 'plan_id': self.plan.id,
+        }, format='json')
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(Lead.objects.get(id=r.data['data']['lead_id']).estado, 'NUEVO')
 
 
-class PlanListFilterAPITests(TestCase):
-    """Pruebas para HU-05: filtrado del catálogo de planes."""
+class AsesorLeadDetailAPITests(TestCase):
+    """HU-15: consultar un lead."""
 
     def setUp(self):
         self.client = APIClient()
-        self.plan_cartagena = Plan.objects.create(
-            titulo='Escapada playera a Cartagena',
-            descripcion='Disfruta del mar Caribe y la ciudad amurallada',
-            destino='Cartagena',
-            precio_referencia='1500000.00',
-            incluye='Hospedaje, desayuno',
-            activo=True,
+        self.user = User.objects.create_user(username='asesor', password='x')
+        self.asesor = Asesor.objects.create(usuario=self.user)
+        self.otro = Asesor.objects.create(
+            usuario=User.objects.create_user(username='otro', password='x')
         )
-        self.plan_eje_cafetero = Plan.objects.create(
-            titulo='Ruta del café',
-            descripcion='Recorre fincas cafeteras y paisajes de montaña',
-            destino='Eje Cafetero',
-            precio_referencia='2500000.00',
-            incluye='Tour guiado, transporte',
-            activo=True,
+        self.plan = Plan.objects.create(
+            titulo='Cartagena Total', descripcion='d', destino='Cartagena',
+            precio_referencia='1500000.00', incluye='Hotel y tour',
         )
-        self.plan_san_andres = Plan.objects.create(
-            titulo='Playas de San Andrés',
-            descripcion='Mar de siete colores todo incluido',
-            destino='San Andrés',
-            precio_referencia='4000000.00',
-            incluye='Todo incluido',
-            activo=True,
+        cliente = Cliente.objects.create(
+            nombre_completo='Ana Pérez', email='ana@x.co', telefono='3001234567'
         )
-        self.plan_inactivo = Plan.objects.create(
-            titulo='Plan descontinuado',
-            descripcion='No debería aparecer nunca',
-            destino='Cartagena',
-            precio_referencia='1000000.00',
-            incluye='Nada',
-            activo=False,
+        self.lead = Lead.objects.create(
+            cliente=cliente, plan=self.plan, asesor=self.asesor,
+            presupuesto='2000000.00', observaciones='Prefiere diciembre',
+        )
+        self.lead_ajeno = Lead.objects.create(
+            cliente=cliente, plan=self.plan, asesor=self.otro
         )
 
-    def test_sin_filtros_retorna_solo_planes_activos(self):
-        response = self.client.get('/api/planes/')
+    def test_detalle_propio(self):
+        self.client.force_authenticate(self.user)
+        r = self.client.get(f'/api/asesor/leads/{self.lead.id}/')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.data['cliente']['email'], 'ana@x.co')
+        self.assertEqual(r.data['cliente']['telefono'], '3001234567')
+        self.assertEqual(r.data['plan']['titulo'], 'Cartagena Total')
+        self.assertEqual(r.data['estado'], 'NUEVO')
+        self.assertEqual(r.data['estado_display'], 'Nuevo')
+        self.assertEqual(r.data['observaciones'], 'Prefiere diciembre')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        titulos = {plan['titulo'] for plan in response.data}
-        self.assertEqual(
-            titulos,
-            {
-                self.plan_cartagena.titulo,
-                self.plan_eje_cafetero.titulo,
-                self.plan_san_andres.titulo,
-            },
-        )
+    def test_detalle_de_otro_asesor_404(self):
+        self.client.force_authenticate(self.user)
+        self.assertEqual(self.client.get(f'/api/asesor/leads/{self.lead_ajeno.id}/').status_code, 404)
 
-    def test_filtra_por_destino(self):
-        response = self.client.get('/api/planes/', {'destino': 'cartagena'})
+    def test_detalle_inexistente_404(self):
+        self.client.force_authenticate(self.user)
+        self.assertEqual(self.client.get('/api/asesor/leads/99999/').status_code, 404)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['titulo'], self.plan_cartagena.titulo)
-
-    def test_filtra_por_rango_de_precio(self):
-        response = self.client.get(
-            '/api/planes/', {'precio_min': '2000000', 'precio_max': '3000000'}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['titulo'], self.plan_eje_cafetero.titulo)
-
-    def test_filtra_por_texto_de_busqueda(self):
-        response = self.client.get('/api/planes/', {'q': 'café'})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['titulo'], self.plan_eje_cafetero.titulo)
-
-    def test_combina_multiples_filtros(self):
-        response = self.client.get(
-            '/api/planes/', {'destino': 'cartagena', 'precio_max': '2000000'}
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['titulo'], self.plan_cartagena.titulo)
-
-    def test_sin_resultados_retorna_lista_vacia(self):
-        response = self.client.get('/api/planes/', {'destino': 'Cancún'})
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+    def test_detalle_sin_auth_401(self):
+        self.assertEqual(self.client.get(f'/api/asesor/leads/{self.lead.id}/').status_code, 401)

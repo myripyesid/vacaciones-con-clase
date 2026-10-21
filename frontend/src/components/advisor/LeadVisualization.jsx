@@ -40,9 +40,10 @@ const formatFecha = (isoDate) => {
 
 export const LEAD_ROW_GRID = 'grid grid-cols-2 items-center gap-x-3 gap-y-3 md:grid-cols-[2.5fr_2fr_1fr_1.3fr] md:gap-x-0';
 
-export default function LeadVisualization({ lead }) {
+export default function LeadVisualization({ lead, onSelect }) {
   const avatarColor = getAvatarColor(lead.cliente_nombre);
   const estadoNormalizado = lead.estado?.toUpperCase();
+  const isNuevo = estadoNormalizado === 'NUEVO';
   const estadoConfig = ESTADO_CONFIG[estadoNormalizado] || {
     label: lead.estado || '—',
     bg: 'bg-slate-50',
@@ -51,13 +52,33 @@ export default function LeadVisualization({ lead }) {
   };
 
   return (
-    <div className={`${LEAD_ROW_GRID} px-4 py-4 border-b border-slate-100 hover:bg-slate-50/60 transition-colors`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onSelect?.(lead.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect?.(lead.id);
+        }
+      }}
+      className={`${LEAD_ROW_GRID} cursor-pointer px-4 py-4 border-b border-slate-100 border-l-4 transition-colors ${
+        isNuevo
+          ? 'border-l-brand-blue bg-brand-blue-soft/40 hover:bg-brand-blue-soft/70'
+          : 'border-l-transparent hover:bg-slate-50/60'
+      }`}
+    >
       <div className="flex items-center gap-3 min-w-0">
         <div className={`w-9 h-9 shrink-0 rounded-full ${avatarColor.bg} ${avatarColor.text} font-semibold flex items-center justify-center text-xs`}>
           {getInitials(lead.cliente_nombre)}
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-900 truncate">{lead.cliente_nombre}</p>
+          <p className={`text-sm text-slate-900 truncate ${isNuevo ? 'font-bold' : 'font-medium'}`}>
+            {isNuevo && (
+              <span aria-hidden="true" className="mr-1.5 inline-block h-2 w-2 rounded-full bg-brand-blue align-middle" />
+            )}
+            {lead.cliente_nombre}
+          </p>
           <p className="text-xs text-slate-500 truncate">{lead.cliente_email}</p>
           {lead.cliente_telefono && (
             <p className="text-xs text-slate-500 truncate">{lead.cliente_telefono}</p>

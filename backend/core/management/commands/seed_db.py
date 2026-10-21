@@ -13,17 +13,6 @@ DESTINOS = [
     'Cancún', 'Punta Cana', 'Curazao', 'Amazonas', 'Capurganá'
 ]
 
-TITULO_TEMPLATES = [
-    "Escapada a {destino}",
-    "Aventura en {destino}",
-    "Descubre {destino}",
-    "Paraíso en {destino}",
-    "Vacaciones todo incluido en {destino}",
-    "Experiencia inolvidable en {destino}",
-    "Ruta mágica por {destino}",
-    "Rincón secreto de {destino}",
-]
-
 INCLUYE_OPTIONS = [
     "Tiquetes aéreos, Hospedaje 4 noches, Alimentación completa, Traslados.",
     "Alojamiento con desayuno, Tour guiado, Seguro de viaje.",
@@ -75,7 +64,7 @@ class Command(BaseCommand):
         for _ in range(8):
             destino = random.choice(DESTINOS)
             plan = Plan.objects.create(
-                titulo=random.choice(TITULO_TEMPLATES).format(destino=destino),
+                titulo=f"Plan Vacacional {destino} {fake.word().capitalize()}",
                 descripcion=fake.paragraph(nb_sentences=3),
                 destino=destino,
                 precio_referencia=round(random.uniform(1200000, 5500000), -4),

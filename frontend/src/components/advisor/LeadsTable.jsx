@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import LeadVisualization, { LEAD_ROW_GRID } from './LeadVisualization';
 import LeadsFilter from './LeadsFilter';
 
-export default function LeadsTable({ leads = [] }) {
+export default function LeadsTable({ leads = [], onSelectLead }) {
   const [estadoFilter, setEstadoFilter] = useState('TODOS');
 
   const visibleLeads = estadoFilter === 'TODOS'
@@ -29,7 +29,7 @@ export default function LeadsTable({ leads = [] }) {
           </div>
         ) : (
           visibleLeads.map((lead) => (
-            <LeadVisualization key={lead.id} lead={lead} />
+            <LeadVisualization key={lead.id} lead={lead} onSelect={onSelectLead} />
           ))
         )}
       </div>

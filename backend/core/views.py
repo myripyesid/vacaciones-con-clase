@@ -1,56 +1,23 @@
 from django.db import transaction
-from django.db.models import Q
 from django.shortcuts import render
 from rest_framework import generics # type: ignore
 from .models import Plan
-from .serializers import LeadCreateSerializer, PlanSerializer, LeadCreateSerializer
+from .serializers import LeadCreateSerializer, PlanSerializer, LeadCreateSerializer  
 from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
 from .models import Plan, Cliente, Lead, Asesor
-from .serializers import SolicitudCrearSerializer, LeadSerializer
+from .serializers import SolicitudCrearSerializer, LeadSerializer, LeadDetailSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-# Vista para HU-01, HU-02 y HU-05 (Listar el catálogo y filtrarlo por criterios)
+# Vista para HU-01 y HU-02 (Listar todo el catálogo)
 class PlanListAPIView(generics.ListAPIView):
     permission_classes = [AllowAny]
+    # 1. ¿Qué datos vamos a buscar en la base de datos?
+    queryset = Plan.objects.filter(activo=True) 
+    
+    # 2. ¿Quién se encarga de traducir estos objetos a JSON?
     serializer_class = PlanSerializer
-
-    def get_queryset(self):
-        """
-        Acepta filtros opcionales por query params:
-        ?destino=Cartagena&precio_min=1000000&precio_max=3000000&q=playa
-        """
-        queryset = Plan.objects.filter(activo=True)
-        params = self.request.query_params
-
-        destino = params.get('destino')
-        if destino:
-            queryset = queryset.filter(destino__iexact=destino)
-
-        precio_min = params.get('precio_min')
-        if precio_min:
-            try:
-                queryset = queryset.filter(precio_referencia__gte=float(precio_min))
-            except ValueError:
-                pass
-
-        precio_max = params.get('precio_max')
-        if precio_max:
-            try:
-                queryset = queryset.filter(precio_referencia__lte=float(precio_max))
-            except ValueError:
-                pass
-
-        texto = params.get('q')
-        if texto:
-            queryset = queryset.filter(
-                Q(titulo__icontains=texto)
-                | Q(descripcion__icontains=texto)
-                | Q(destino__icontains=texto)
-            )
-
-        return queryset
 
 # Vista para HU-03 y HU-04 (Detalle de un plan específico)
 class PlanDetailAPIView(generics.RetrieveAPIView):
@@ -169,9 +136,45 @@ class LeadCreateAPIView(APIView):
         return Response(respuesta, status=status.HTTP_201_CREATED)
 
 class AsesorLeadsView(APIView):
+    """
+    HU-13 / HU-14: leads asignados al asesor autenticado.
+    Filtro opcional: GET /api/asesor/leads/?estado=NUEVO  (identificar nuevos leads)
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        leads = Lead.objects.filter(asesor__usuario = request.user)
+        leads = (
+            Lead.objects
+            .filter(asesor__usuario=request.user)
+            .select_related('cliente', 'plan')
+            .order_by('-fecha_creacion')
+        )
+
+        estado = request.query_params.get('estado')
+        if estado:
+            validos = {codigo for codigo, _ in Lead.ESTADOS}
+            if estado.upper() not in validos:
+                return Response(
+                    {'estado': f"Estado inválido. Opciones: {sorted(validos)}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            leads = leads.filter(estado__iexact=estado)  # iexact: tolera filas viejas en minúscula
+
         serializer = LeadSerializer(leads, many=True)
         return Response(serializer.data)
+
+
+class AsesorLeadDetailView(generics.RetrieveAPIView):
+    """
+    HU-15: GET /api/asesor/leads/<id>/
+    Solo devuelve el lead si está asignado al asesor autenticado; si no, 404.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = LeadDetailSerializer
+
+    def get_queryset(self):
+        return (
+            Lead.objects
+            .filter(asesor__usuario=self.request.user)
+            .select_related('cliente', 'plan')
+        )

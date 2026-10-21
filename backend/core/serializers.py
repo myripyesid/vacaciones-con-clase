@@ -56,6 +56,7 @@ class LeadSerializer(serializers.ModelSerializer):
     cliente_telefono = serializers.ReadOnlyField(source='cliente.telefono')
 
     plan_nombre = serializers.ReadOnlyField(source='plan.titulo') 
+    plan_destino = serializers.ReadOnlyField(source='plan.destino')
 
     class Meta:
         model = Lead
@@ -65,9 +66,31 @@ class LeadSerializer(serializers.ModelSerializer):
             'cliente_email',
             'cliente_telefono',
             'plan_nombre',
+            'plan_destino',
             'presupuesto',
             'fechas_tentativas',
             'estado',
+            'observaciones',
+            'fecha_creacion',
+        ]
+
+
+class LeadDetailSerializer(serializers.ModelSerializer):
+    """HU-15: detalle completo de un lead para el asesor."""
+    cliente = ClienteSerializer(read_only=True)
+    plan = PlanSerializer(read_only=True)
+    estado_display = serializers.CharField(source='get_estado_display', read_only=True)
+
+    class Meta:
+        model = Lead
+        fields = [
+            'id',
+            'estado',
+            'estado_display',
+            'cliente',
+            'plan',
+            'presupuesto',
+            'fechas_tentativas',
             'observaciones',
             'fecha_creacion',
         ]

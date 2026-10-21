@@ -45,6 +45,10 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
     fetchLeads();
   }, []);
 
+  const newLeadsCount = Array.isArray(leads)
+    ? leads.filter((l) => l.estado?.toUpperCase() === 'NUEVO').length
+    : 0;
+
   return (
     <div className="flex min-h-screen flex-col bg-brand-gray-light md:flex-row">
       {/* Sidebar Fijo con navegación activa */}
@@ -52,6 +56,7 @@ export default function Dashboard({ onLogout, currentView, onNavigate }) {
         onLogout={onLogout} 
         currentView={currentView} 
         onNavigate={onNavigate} 
+        newLeadsCount={newLeadsCount}
       />
 
       {/* Área de Contenido Principal */}

@@ -3,12 +3,14 @@ import Sidebar from "../components/advisor/Sidebar";
 import LeadsHeader from "../components/advisor/LeadsHeader";
 import LeadsSearchBar from "../components/advisor/LeadsSearchBar";
 import LeadsTable from "../components/advisor/LeadsTable";
+import LeadDetail from "../components/advisor/LeadDetail";
 
 export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLeadId, setSelectedLeadId] = useState(null); // HU-15
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -65,6 +67,9 @@ export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
         );
       });
 
+  // HU-14: cantidad de leads nuevos para el badge del sidebar
+  const newLeadsCount = leads.filter((l) => l.estado?.toUpperCase() === 'NUEVO').length;
+
   return (
     <div className="flex min-h-screen flex-col bg-brand-gray-light md:flex-row">
       {/* Sidebar Fijo (se mantiene la navegación actual) */}
@@ -72,10 +77,19 @@ export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
       onLogout={onLogout}
       currentView={currentView}
       onNavigate={onNavigate}
+      newLeadsCount={newLeadsCount}
       />
 
       {/* Área de Contenido Principal de Leads */}
       <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        {selectedLeadId !== null ? (
+          <LeadDetail
+            key={selectedLeadId}
+            leadId={selectedLeadId}
+            onBack={() => setSelectedLeadId(null)}
+          />
+        ) : (
+        <>
         <LeadsHeader leads={leads} />
 
         {/* Manejo de Carga y Errores */}
@@ -100,12 +114,11 @@ export default function LeadsBoard({ onLogout, currentView, onNavigate }) {
               <LeadsSearchBar onSearch={setSearchQuery} />
             </div>
 
-            <LeadsTable leads={filteredLeads} />
-
-            {/* <LeadsTable leads={filteredLeads} /> */}
+            <LeadsTable leads={filteredLeads} onSelectLead={setSelectedLeadId} />
           </div>
         )}
-
+        </>
+        )}
 
       </main>
     </div>

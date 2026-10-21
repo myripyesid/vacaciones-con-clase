@@ -1,6 +1,6 @@
 import BrandLogo from '../common/BrandLogo';
 
-export default function Sidebar({ user, onLogout, currentView = 'dashboard', onNavigate }) {
+export default function Sidebar({ user, onLogout, currentView = 'dashboard', onNavigate, newLeadsCount = 0 }) {
   const storedUser = JSON.parse(localStorage.getItem('user')) || {};
   const currentUser = user || storedUser;
   const displayName = currentUser.name || 'Asesor';
@@ -59,7 +59,11 @@ export default function Sidebar({ user, onLogout, currentView = 'dashboard', onN
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4 shrink-0"><circle cx="9" cy="8" r="3.25"/><path strokeLinecap="round" d="M3.5 19c.6-3.1 2.4-4.7 5.5-4.7s4.9 1.6 5.5 4.7M17 6.5a3 3 0 010 5.8m1 2.2c1.5.7 2.4 2.2 2.7 4.5"/></svg>
               Leads
             </span>
-            <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-semibold text-white">1</span>
+            {newLeadsCount > 0 && (
+              <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-semibold text-white">
+                {newLeadsCount}
+              </span>
+            )}
           </button>
 
           <button onClick={(event) => handleNavClick(event, 'ventas')} className={navClass('ventas')}>

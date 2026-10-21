@@ -1,6 +1,7 @@
 # core/urls.py
 from django.urls import path
 from .views import (
+    AsesorLeadDetailView,
     AsesorLeadsView,
     LeadCreateAPIView,
     PlanListAPIView,
@@ -13,5 +14,6 @@ urlpatterns = [
     path('planes/<int:pk>/', PlanDetailAPIView.as_view(), name='plan-detail'),
     path('solicitudes/', SolicitudCreateAPIView.as_view(), name='solicitud-create'),
     path('leads/', LeadCreateAPIView.as_view(), name='registro-solicitud-lead'),
-    path('asesor/leads/', AsesorLeadsView.as_view(), name='asesor-leads'),  # <-- Se agrega /
+    path('asesor/leads/', AsesorLeadsView.as_view(), name='asesor-leads'),
+    path('asesor/leads/<int:pk>/', AsesorLeadDetailView.as_view(), name='asesor-lead-detail'),
 ]

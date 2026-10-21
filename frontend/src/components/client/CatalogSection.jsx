@@ -1,47 +1,13 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import PlanCard from './PlanCard';
-import PlanFilters from './PlanFilters';
-import useDebounce from '../../hooks/useDebounce';
-import { fetchPlanes } from '../../api/planes';
-
-const FILTROS_INICIALES = { destino: '', precioMin: '', precioMax: '', texto: '' };
 
 export default function CatalogSection({ plans, onSelectPlan }) {
-  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
-  const [resultados, setResultados] = useState([]);
-  const [loading, setLoading] = useState(true); // Solo cubre la carga inicial del catálogo
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Espera a que el usuario deje de escribir/ajustar los filtros antes
-  // de volver a consultar el backend (evita una petición por cada tecla).
-  const filtrosDebounced = useDebounce(filtros, 400);
-
-  // Opciones del selector de destino: se derivan del catálogo completo
-  // ya cargado en Home, no de los resultados filtrados.
-  const destinos = useMemo(() => {
-    const unicos = new Set(plans.map((plan) => plan.destino).filter(Boolean));
-    return Array.from(unicos).sort();
-  }, [plans]);
-
-  const hasActiveFilters = Object.values(filtros).some((value) => value !== '');
-
-  useEffect(() => {
-    let cancelado = false;
-
-    fetchPlanes(filtrosDebounced)
-      .then((data) => {
-        if (!cancelado) setResultados(data);
-      })
-      .catch(() => {
-        if (!cancelado) setResultados([]);
-      })
-      .finally(() => {
-        if (!cancelado) setLoading(false);
-      });
-
-    return () => {
-      cancelado = true;
-    };
-  }, [filtrosDebounced]);
+  const filtered = plans.filter((plan) => {
+    const title = (plan.titulo || plan.nombre || plan.title || '').toLowerCase();
+    return title.includes(searchQuery.toLowerCase());
+  });
 
   return (
     <section id="catalogo" className="bg-brand-gray-light px-5 pb-20 pt-32 text-brand-gray-dark sm:px-6">
@@ -50,27 +16,21 @@ export default function CatalogSection({ plans, onSelectPlan }) {
           <h2 className="text-4xl font-serif">Catálogo de planes</h2>
         </div>
 
-        <PlanFilters
-          destinos={destinos}
-          filtros={filtros}
-          onChange={setFiltros}
-          onClear={() => setFiltros(FILTROS_INICIALES)}
-          hasActiveFilters={hasActiveFilters}
-        />
+        <div className="max-w-md mx-auto mb-12">
+          <input
+            type="text"
+            placeholder="Buscar destino o plan..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-full border border-brand-border bg-white px-6 py-3 text-sm text-brand-gray-dark shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/15"
+          />
+        </div>
 
-        {loading ? (
-          <p className="text-center text-sm text-slate-500">Buscando planes...</p>
-        ) : resultados.length === 0 ? (
-          <p className="text-center text-sm text-slate-500">
-            No se encontraron planes que coincidan con los criterios seleccionados.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 text-slate-800 md:grid-cols-2 md:gap-8">
-            {resultados.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} onSelect={onSelectPlan} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 gap-6 text-slate-800 md:grid-cols-2 md:gap-8">
+          {filtered.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} onSelect={onSelectPlan} />
+          ))}
+        </div>
       </div>
     </section>
   );
