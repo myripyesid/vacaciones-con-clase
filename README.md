@@ -29,11 +29,12 @@ docker compose up -d --build
 
 ### 3. Inicializar la base de datos
 
-Ejecuta las migraciones y crea un superusuario para acceder al panel de administración:
+Ejecuta las migraciones, crea un superusuario para acceder al panel de administración y pobla la base de datos:
 
 ```bash
 docker compose exec backend python manage.py migrate
 docker compose exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py seed_db --total 30
 
 ```
 
