@@ -12,7 +12,7 @@ Aplicación full-stack dockerizada con **Django REST Framework** (Backend), **Re
 
 ### 1. Clonar el repositorio
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone [<URL_DEL_REPOSITORIO>](https://github.com/myripyesid/vacaciones-con-clase.git)
 cd vacaciones-con-clase
 git checkout despliegue
 
