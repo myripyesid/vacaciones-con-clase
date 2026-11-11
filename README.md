@@ -1,3 +1,61 @@
+Crea el archivo `README.md` en la raíz de tu proyecto y pega el siguiente contenido:
+
+```markdown
+# Vacaciones con Clase
+
+Aplicación full-stack dockerizada con **Django REST Framework** (Backend), **React + Vite** (Frontend) y **PostgreSQL** (Base de datos).
+
+## Requisitos previos
+
+- [Git](https://git-scm.com/)
+- [Docker y Docker Compose](https://www.docker.com/products/docker-desktop/)
+
+## Cómo ejecutar el proyecto
+
+### 1. Clonar el repositorio
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd vacaciones-con-clase
+git checkout despliegue
+
+```
+
+### 2. Construir las imágenes y levantar los contenedores
+
+```bash
+docker compose up -d --build
+
+```
+
+*(Este comando construye las imágenes del frontend y backend, levanta PostgreSQL y deja los tres servicios corriendo en segundo plano).*
+
+### 3. Inicializar la base de datos
+
+Ejecuta las migraciones y crea un superusuario para acceder al panel de administración:
+
+```bash
+docker compose exec backend python manage.py migrate
+docker compose exec backend python manage.py createsuperuser
+
+```
+
+### 4. Acceder a la aplicación
+
+* **Frontend:** `http://localhost:3000`
+* **Backend / Admin:** `http://localhost:8000/admin/`
+
+## Comandos útiles
+
+* **Ver logs en tiempo real:** `docker compose logs -f`
+* **Detener los contenedores:** `docker compose down`
+* **Detener y borrar volúmenes (reiniciar DB desde cero):** `docker compose down -v`
+
+```
+
+---
+
+
+
 
 ## 🛠️ Configuración y Poblamiento de la Base de Datos (Data Seeding)
 
