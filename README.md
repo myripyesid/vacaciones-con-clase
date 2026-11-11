@@ -1,6 +1,4 @@
-Crea el archivo `README.md` en la raíz de tu proyecto y pega el siguiente contenido:
 
-```markdown
 # Vacaciones con Clase
 
 Aplicación full-stack dockerizada con **Django REST Framework** (Backend), **React + Vite** (Frontend) y **PostgreSQL** (Base de datos).
@@ -49,8 +47,6 @@ docker compose exec backend python manage.py createsuperuser
 * **Ver logs en tiempo real:** `docker compose logs -f`
 * **Detener los contenedores:** `docker compose down`
 * **Detener y borrar volúmenes (reiniciar DB desde cero):** `docker compose down -v`
-
-```
 
 ---
 
